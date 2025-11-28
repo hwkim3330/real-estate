@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시장 분석 - 집다</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #f8f9fa; }
+        .header { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: #ff6b35; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+        .nav { display: flex; gap: 2rem; align-items: center; }
+        .nav-link { text-decoration: none; color: #2d3436; font-weight: 500; transition: all 0.3s; padding: 0.5rem 1rem; border-radius: 8px; }
+        .nav-link:hover, .nav-link.active { color: #ff6b35; background: #f8f9fa; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #ff6b35; color: #fff; }
+        .btn-icon { background: transparent; border: 2px solid #ff6b35; color: #ff6b35; position: relative; }
+        .badge { position: absolute; top: -8px; right: -8px; background: #d63031; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+        .main-content { padding: 3rem 0; }
+        .page-title { font-size: 2rem; margin-bottom: 2rem; color: #2d3436; display: flex; align-items: center; gap: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .stat-card { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); transform: translateY(-2px); }
+        .stat-card h3 { font-size: 1.1rem; font-weight: 600; color: #2d3436; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f8f9fa; }
+        .stat-card canvas { max-height: 250px; }
+        .live-stats .stats-list { display: flex; flex-direction: column; gap: 1.25rem; }
+        .stat-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #ff6b35, #e65a2e); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .stat-info { flex: 1; }
+        .stat-label { font-size: 0.85rem; color: #666; margin-bottom: 0.25rem; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: #2d3436; }
+        .footer { background: #2d3436; color: #fff; padding: 3rem 2rem; margin-top: 4rem; }
+        .footer-content { max-width: 1400px; margin: 0 auto; text-align: center; color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo"><i class="fas fa-home"></i><span>집다</span></a>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">홈</a>
+                    <a href="map.html" class="nav-link">지도</a>
+                    <a href="favorites.html" class="nav-link">찜</a>
+                    <a href="analytics.html" class="nav-link active">분석</a>
+                    <a href="about.html" class="nav-link">회사소개</a>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn btn-icon" onclick="window.location.href='favorites.html'">
+                        <i class="fas fa-heart"></i>
+                        <span class="badge" id="favorites-count">0</span>
+                    </button>
+                    <button class="btn btn-primary">중개사 등록</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 class="page-title"><i class="fas fa-chart-line"></i> 실시간 부동산 시장 분석</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>지역별 평균 가격</h3>
+                    <canvas id="districtPriceChart"></canvas>
+                </div>
+                <div class="stat-card">
+                    <h3>최근 7일 거래 추이</h3>
+                    <canvas id="weeklyTrendChart"></canvas>
+                </div>
+                <div class="stat-card">
+                    <h3>매물 타입 분포</h3>
+                    <canvas id="propertyTypeChart"></canvas>
+                </div>
+                <div class="stat-card live-stats">
+                    <h3>실시간 통계</h3>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-home"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-label">전체 매물</div>
+                                <div class="stat-value">4</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-label">인기 매물</div>
+                                <div class="stat-value">2</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-label">오늘 거래 완료</div>
+                                <div class="stat-value">12</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-label">평균 거래 시간</div>
+                                <div class="stat-value">3.2일</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 집다. Built with ❤️ in Seoul, Korea</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('favorites-count').textContent = (localStorage.getItem('favorites') ? JSON.parse(localStorage.getItem('favorites')).length : 0);
+        
+        if (typeof Chart !== 'undefined') {
+            new Chart(document.getElementById('districtPriceChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['성남시 분당구', '강남구', '마포구'],
+                    datasets: [{
+                        label: '평균 가격 (억원)',
+                        data: [2.5, 3.2, 2.8],
+                        backgroundColor: 'rgba(255, 107, 53, 0.7)',
+                        borderColor: 'rgba(255, 107, 53, 1)',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            });
+            
+            new Chart(document.getElementById('weeklyTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: ['7일 전', '6일 전', '5일 전', '4일 전', '3일 전', '2일 전', '어제'],
+                    datasets: [{
+                        label: '거래 건수',
+                        data: [45, 52, 48, 61, 55, 67, 73],
+                        borderColor: 'rgba(9, 132, 227, 1)',
+                        backgroundColor: 'rgba(9, 132, 227, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            });
+            
+            new Chart(document.getElementById('propertyTypeChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['원룸', '투룸', '오피스텔'],
+                    datasets: [{
+                        data: [3, 1, 2],
+                        backgroundColor: ['rgba(255, 107, 53, 0.8)', 'rgba(9, 132, 227, 0.8)', 'rgba(0, 184, 148, 0.8)']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+</body>
+</html>

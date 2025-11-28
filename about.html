@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회사소개 - 집다</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #f8f9fa; }
+        .header { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: #ff6b35; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+        .nav { display: flex; gap: 2rem; align-items: center; }
+        .nav-link { text-decoration: none; color: #2d3436; font-weight: 500; transition: all 0.3s; padding: 0.5rem 1rem; border-radius: 8px; }
+        .nav-link:hover, .nav-link.active { color: #ff6b35; background: #f8f9fa; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #ff6b35; color: #fff; }
+        .btn-icon { background: transparent; border: 2px solid #ff6b35; color: #ff6b35; position: relative; }
+        .badge { position: absolute; top: -8px; right: -8px; background: #d63031; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+        .main-content { padding: 3rem 0; }
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0; text-align: center; margin-bottom: 3rem; }
+        .hero-section h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .hero-section p { font-size: 1.2rem; opacity: 0.95; }
+        .section { background: white; border-radius: 8px; padding: 3rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .section h2 { font-size: 1.8rem; margin-bottom: 1.5rem; color: #2d3436; display: flex; align-items: center; gap: 0.75rem; }
+        .section h2 i { color: #ff6b35; }
+        .section p { line-height: 1.8; color: #666; margin-bottom: 1rem; }
+        .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .value-card { background: #f8f9fa; padding: 2rem; border-radius: 8px; text-align: center; }
+        .value-card i { font-size: 3rem; color: #ff6b35; margin-bottom: 1rem; }
+        .value-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: #2d3436; }
+        .value-card p { color: #666; }
+        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .contact-card { background: #f8f9fa; padding: 2rem; border-radius: 8px; }
+        .contact-card h3 { font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: #2d3436; }
+        .contact-card h3 i { color: #ff6b35; }
+        .contact-card p { color: #666; margin-bottom: 0.5rem; }
+        .footer { background: #2d3436; color: #fff; padding: 3rem 2rem; margin-top: 4rem; }
+        .footer-content { max-width: 1400px; margin: 0 auto; text-align: center; color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo"><i class="fas fa-home"></i><span>집다</span></a>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">홈</a>
+                    <a href="map.html" class="nav-link">지도</a>
+                    <a href="favorites.html" class="nav-link">찜</a>
+                    <a href="analytics.html" class="nav-link">분석</a>
+                    <a href="about.html" class="nav-link active">회사소개</a>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn btn-icon" onclick="window.location.href='favorites.html'">
+                        <i class="fas fa-heart"></i>
+                        <span class="badge" id="favorites-count">0</span>
+                    </button>
+                    <button class="btn btn-primary">중개사 등록</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <div class="container">
+            <h1>집다 - 대한민국 NO.1 부동산 플랫폼</h1>
+            <p>실시간 매물 정보와 안심 거래를 제공합니다</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="section">
+                <h2><i class="fas fa-building"></i> 회사 소개</h2>
+                <p>집다는 2025년 설립된 대한민국의 혁신적인 부동산 플랫폼입니다. 우리는 투명하고 신뢰할 수 있는 부동산 거래 환경을 만들기 위해 최선을 다하고 있습니다.</p>
+                <p>서울을 중심으로 시작하여 현재는 전국 주요 도시의 매물 정보를 제공하고 있으며, 매일 수백 건의 신규 매물이 업데이트됩니다.</p>
+                <p>우리의 목표는 모든 사람이 쉽고 안전하게 원하는 집을 찾을 수 있도록 돕는 것입니다.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-star"></i> 핵심 가치</h2>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>신뢰</h3>
+                        <p>검증된 매물과 중개사 정보로 안심 거래를 보장합니다</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-clock"></i>
+                        <h3>신속</h3>
+                        <p>실시간 업데이트로 빠르게 매물을 찾을 수 있습니다</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>투명</h3>
+                        <p>명확한 가격 정보와 시장 분석을 제공합니다</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-users"></i>
+                        <h3>편의</h3>
+                        <p>사용자 친화적인 인터페이스로 쉽게 매물을 탐색합니다</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-envelope"></i> 연락처</h2>
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <h3><i class="fas fa-phone"></i> 고객센터</h3>
+                        <p><strong>전화:</strong> 1588-1234</p>
+                        <p><strong>운영시간:</strong> 평일 09:00 - 18:00</p>
+                        <p><strong>이메일:</strong> support@jikbangpro.com</p>
+                    </div>
+                    <div class="contact-card">
+                        <h3><i class="fas fa-briefcase"></i> 중개사 문의</h3>
+                        <p><strong>전화:</strong> 1588-5678</p>
+                        <p><strong>운영시간:</strong> 평일 09:00 - 18:00</p>
+                        <p><strong>이메일:</strong> partner@jikbangpro.com</p>
+                    </div>
+                    <div class="contact-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> 본사 위치</h3>
+                        <p><strong>주소:</strong> 서울특별시 강남구 테헤란로 123</p>
+                        <p><strong>우편번호:</strong> 06234</p>
+                        <p><strong>지하철:</strong> 2호선 강남역 3번 출구</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 집다. Built with ❤️ in Seoul, Korea</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('favorites-count').textContent = (localStorage.getItem('favorites') ? JSON.parse(localStorage.getItem('favorites')).length : 0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>찜 - 집다</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #f8f9fa; }
+        .header { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: #ff6b35; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+        .nav { display: flex; gap: 2rem; align-items: center; }
+        .nav-link { text-decoration: none; color: #2d3436; font-weight: 500; transition: all 0.3s; padding: 0.5rem 1rem; border-radius: 8px; }
+        .nav-link:hover, .nav-link.active { color: #ff6b35; background: #f8f9fa; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #ff6b35; color: #fff; }
+        .btn-icon { background: transparent; border: 2px solid #ff6b35; color: #ff6b35; position: relative; }
+        .badge { position: absolute; top: -8px; right: -8px; background: #d63031; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+        .main-content { padding: 3rem 0; min-height: calc(100vh - 300px); }
+        .page-title { font-size: 2rem; margin-bottom: 2rem; color: #2d3436; display: flex; align-items: center; gap: 1rem; }
+        .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .property-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s; cursor: pointer; position: relative; }
+        .property-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); transform: translateY(-4px); }
+        .property-image { width: 100%; height: 220px; object-fit: cover; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .property-info { padding: 1.5rem; }
+        .property-type { display: inline-block; background: #f8f9fa; color: #2d3436; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .property-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #2d3436; }
+        .property-location { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+        .property-price { font-size: 1.5rem; font-weight: 700; color: #ff6b35; }
+        .property-features { display: flex; gap: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; color: #666; font-size: 0.9rem; }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state h3 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #666; }
+        .empty-state p { color: #999; margin-bottom: 2rem; }
+        .favorite-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        .footer { background: #2d3436; color: #fff; padding: 3rem 2rem; margin-top: 4rem; }
+        .footer-content { max-width: 1400px; margin: 0 auto; text-align: center; color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo"><i class="fas fa-home"></i><span>집다</span></a>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">홈</a>
+                    <a href="map.html" class="nav-link">지도</a>
+                    <a href="favorites.html" class="nav-link active">찜</a>
+                    <a href="analytics.html" class="nav-link">분석</a>
+                    <a href="about.html" class="nav-link">회사소개</a>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn btn-icon" onclick="window.location.href='favorites.html'">
+                        <i class="fas fa-heart"></i>
+                        <span class="badge" id="favorites-count">0</span>
+                    </button>
+                    <button class="btn btn-primary">중개사 등록</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 class="page-title"><i class="fas fa-heart" style="color:#d63031;"></i> 찜한 매물</h1>
+            <div class="property-grid" id="property-grid"></div>
+            <div class="empty-state" id="empty-state" style="display:none;">
+                <h3>찜한 매물이 없습니다</h3>
+                <p>마음에 드는 매물을 찜해보세요!</p>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">매물 둘러보기</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 집다. Built with ❤️ in Seoul, Korea</p>
+        </div>
+    </footer>
+
+    <script>
+        const properties = [{id:101,title:"판교테크노밸리 초역세권 신축 오피스텔",type:"원룸",saleType:"월세",price:2000,monthlyRent:75,address:"경기도 성남시 분당구 삼평동 681",area:36,rooms:1,floor:12,image:"https://picsum.photos/seed/pangyo1/400/300"},{id:1,title:"신논현역 초역세권 신축 오피스텔",type:"원룸",saleType:"월세",price:500,monthlyRent:60,address:"서울시 강남구 논현동 123-45",area:33,rooms:1,floor:8,image:"https://picsum.photos/seed/prop1/400/300"},{id:2,title:"강남역 대로변 투룸 오피스텔",type:"투룸",saleType:"전세",price:35000,monthlyRent:0,address:"서울시 강남구 역삼동 789-12",area:45,rooms:2,floor:12,image:"https://picsum.photos/seed/prop2/400/300"},{id:6,title:"홍대입구역 신축 오피스텔",type:"원룸",saleType:"월세",price:3000,monthlyRent:70,address:"서울시 마포구 서교동 123-45",area:35,rooms:1,floor:7,image:"https://picsum.photos/seed/prop6/400/300"}];
+        
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        document.getElementById('favorites-count').textContent = favorites.length;
+        
+        const grid = document.getElementById('property-grid');
+        const empty = document.getElementById('empty-state');
+        
+        const favoriteProperties = properties.filter(p => favorites.includes(p.id));
+        
+        if (favoriteProperties.length === 0) {
+            empty.style.display = 'block';
+        } else {
+            grid.innerHTML = favoriteProperties.map(p => {
+                const priceDisplay = p.saleType === '월세' ? `${p.price}/${p.monthlyRent}` : p.price.toLocaleString();
+                return `
+                    <div class="property-card" onclick="window.location.href='index.html'">
+                        <img src="${p.image}" alt="${p.title}" class="property-image">
+                        <button class="favorite-btn" onclick="event.stopPropagation();removeFavorite(${p.id})">❤️</button>
+                        <div class="property-info">
+                            <span class="property-type">${p.type}</span>
+                            <h3 class="property-title">${p.title}</h3>
+                            <p class="property-location">📍 ${p.address}</p>
+                            <div class="property-price">${priceDisplay} <small>만원</small></div>
+                            <div class="property-features">
+                                <span>📐 ${p.area}㎡</span>
+                                <span>🛏️ ${p.rooms}개</span>
+                                <span>🏢 ${p.floor}층</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function removeFavorite(id) {
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

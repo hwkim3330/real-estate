@@ -6,12 +6,6 @@
     <title>집다 - 대한민국 NO.1 부동산 플랫폼</title>
     <meta name="description" content="서울 강남, 서초, 마포 등 전국 원룸, 투룸, 오피스텔 매물 정보. 실시간 업데이트!">
 
-    <!-- Kakao Map API -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY_HERE&libraries=services,clusterer"></script>
-
-    <!-- Chart.js for graphs -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -19,27 +13,1096 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Kakao Map API -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY_HERE&libraries=services,clusterer"></script>
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* CSS from styles.css */
+        :root {
+            --primary-color: #ff6b35;
+            --primary-hover: #e65a2e;
+            --secondary-color: #2d3436;
+            --accent-color: #0984e3;
+            --success-color: #00b894;
+            --danger-color: #d63031;
+            --warning-color: #fdcb6e;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --card-shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            color: var(--secondary-color);
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background: var(--light-bg);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+            background: var(--light-bg);
+        }
+
+        .nav-link.premium {
+            color: var(--warning-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            background: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-content {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+        }
+
+        .search-input-wrapper i {
+            color: #999;
+            margin-right: 0.75rem;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-filter {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-filter:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            z-index: 2000;
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+
+        .filter-panel.active {
+            right: 0;
+        }
+
+        .filter-content {
+            padding: 2rem;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .filter-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .filter-section {
+            margin-bottom: 2rem;
+        }
+
+        .filter-section h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-option {
+            background: var(--light-bg);
+            border: 2px solid transparent;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-option:hover, .filter-option.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .price-inputs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .price-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        .filter-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox input {
+            cursor: pointer;
+        }
+
+        .filter-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .filter-footer .btn {
+            flex: 1;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 2rem;
+        }
+
+        .view-toggle {
+            background: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .view-toggle .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .view-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .results-info {
+            color: #666;
+        }
+
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            background: white;
+            cursor: pointer;
+        }
+
+        /* List View */
+        .list-view {
+            display: none;
+        }
+
+        .list-view.active {
+            display: block;
+        }
+
+        /* Statistics Section */
+        .statistics-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--light-bg);
+        }
+
+        .stat-card canvas {
+            max-height: 250px;
+        }
+
+        .live-stats .stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: #e9ecef;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            line-height: 1;
+        }
+
+        /* Premium Banner */
+        .premium-banner {
+            background: linear-gradient(135deg, var(--warning-color), #f39c12);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .premium-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .premium-content i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .premium-content h3 {
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .premium-content p {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+        }
+
+        .btn-premium {
+            background: white;
+            color: var(--warning-color);
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-premium:hover {
+            transform: scale(1.05);
+        }
+
+        /* Property List */
+        .property-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Property Card */
+        .property-card {
+            background: #fff;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .property-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-4px);
+        }
+
+        .property-card.premium {
+            border: 2px solid var(--warning-color);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .premium-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--warning-color);
+            color: var(--secondary-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+
+        .favorite-btn:hover {
+            background: #fff;
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.favorited {
+            color: var(--danger-color);
+        }
+
+        .property-info {
+            padding: 1.5rem;
+        }
+
+        .property-type {
+            display: inline-block;
+            background: var(--light-bg);
+            color: var(--secondary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .property-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .property-location {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .property-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .property-price small {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .property-features {
+            display: flex;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Load More */
+        .load-more {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        /* Map View */
+        .map-view {
+            display: none;
+            position: relative;
+        }
+
+        .map-view.active {
+            display: block;
+        }
+
+        .map-container {
+            height: 600px;
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .map-control-btn {
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .map-control-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .property-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            display: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: var(--border-radius);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: #fff;
+            transform: rotate(90deg);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-header {
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-location {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .modal-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+        }
+
+        .detail-item h4 {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-item p {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-section {
+            margin: 2rem 0;
+        }
+
+        .modal-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .options-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--light-bg);
+            border-radius: 4px;
+        }
+
+        .agent-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+        }
+
+        .agent-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .agent-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .agent-details p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-contact, .btn-tour {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-contact {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-contact:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-tour {
+            background: #fff;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-tour:hover {
+            background: var(--light-bg);
+        }
+
+        /* Favorites Sidebar */
+        .favorites-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            z-index: 2000;
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+
+        .favorites-sidebar.active {
+            right: 0;
+        }
+
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .favorites-body {
+            padding: 2rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 3rem 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary-color);
+            color: #fff;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .property-list {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel, .favorites-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo">
+                <a href="index.html" class="logo">
                     <i class="fas fa-home"></i>
                     <span>집다</span>
-                </div>
+                </a>
 
                 <nav class="nav">
-                    <a href="#" class="nav-link active">원룸</a>
-                    <a href="#" class="nav-link">투룸</a>
-                    <a href="#" class="nav-link">오피스텔</a>
-                    <a href="#" class="nav-link premium">프리미엄 <i class="fas fa-crown"></i></a>
+                    <a href="index.html" class="nav-link active">홈</a>
+                    <a href="map.html" class="nav-link">지도</a>
+                    <a href="favorites.html" class="nav-link">찜</a>
+                    <a href="analytics.html" class="nav-link">분석</a>
+                    <a href="about.html" class="nav-link">회사소개</a>
                 </nav>
 
                 <div class="header-actions">
-                    <button class="btn-icon" id="favorites-btn">
+                    <button class="btn-icon" id="favorites-btn" onclick="window.location.href='favorites.html'">
                         <i class="fas fa-heart"></i>
                         <span class="badge" id="favorites-count">0</span>
                     </button>
@@ -108,7 +1171,7 @@
                     </div>
                 </div>
 
-                <!-- 방/욕실 개수 -->
+                <!-- 방 개수 -->
                 <div class="filter-section">
                     <h4>방 개수</h4>
                     <div class="filter-options">
@@ -160,7 +1223,7 @@
                         <i class="fas fa-list"></i>
                         리스트
                     </button>
-                    <button class="view-btn" data-view="map">
+                    <button class="view-btn" data-view="map" onclick="window.location.href='map.html'">
                         <i class="fas fa-map"></i>
                         지도
                     </button>
@@ -278,29 +1341,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Map View -->
-        <div class="map-view" id="map-view">
-            <div id="map" class="map-container"></div>
-
-            <!-- Map Controls -->
-            <div class="map-controls">
-                <button class="map-control-btn" id="current-location">
-                    <i class="fas fa-crosshairs"></i>
-                </button>
-                <button class="map-control-btn" id="zoom-in">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <button class="map-control-btn" id="zoom-out">
-                    <i class="fas fa-minus"></i>
-                </button>
-            </div>
-
-            <!-- Property Card Overlay (shown on marker click) -->
-            <div class="property-overlay" id="property-overlay">
-                <!-- Property details will be shown here -->
-            </div>
-        </div>
     </div>
 
     <!-- Property Detail Modal -->
@@ -313,20 +1353,6 @@
             <div class="modal-body" id="modal-body">
                 <!-- Property details will be inserted here -->
             </div>
-        </div>
-    </div>
-
-    <!-- Favorites Sidebar -->
-    <div class="favorites-sidebar" id="favorites-sidebar">
-        <div class="favorites-header">
-            <h3>찜한 매물</h3>
-            <button class="btn-close" id="favorites-close">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <div class="favorites-body" id="favorites-body">
-            <p class="empty-message">찜한 매물이 없습니다</p>
         </div>
     </div>
 
@@ -356,7 +1382,7 @@
 
                 <div class="footer-section">
                     <h4>회사 정보</h4>
-                    <p><a href="#">회사 소개</a></p>
+                    <p><a href="about.html">회사 소개</a></p>
                     <p><a href="#">이용약관</a></p>
                     <p><a href="#">개인정보처리방침</a></p>
                 </div>
@@ -373,10 +1399,483 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="js/data.js"></script>
-    <script src="js/map.js"></script>
-    <script src="js/simulation.js"></script>
-    <script src="js/app.js"></script>
+    <script>
+        // Inline JavaScript - data.js, app.js, simulation.js combined
+
+        // DATA.JS - Property data
+        const properties = [
+    // Pangyo properties
+    {
+        id: 101, title: "판교테크노밸리 초역세권 신축 오피스텔", type: "원룸", saleType: "월세", price: 2000, monthlyRent: 75,
+        address: "경기도 성남시 분당구 삼평동 681", district: "성남시 분당구", area: 36, rooms: 1, bathrooms: 1,
+        floor: 12, totalFloors: 20, buildYear: 2024,
+        options: ["에어컨", "냉장고", "세탁기", "인덕션", "신발장", "붙박이장", "전자도어락", "주차가능"],
+        description: "판교테크노밸리 도보 2분 거리 신축 오피스텔입니다.",
+        lat: 37.4020, lng: 127.1080, image: "https://picsum.photos/seed/pangyo1/400/300",
+        agent: { name: "판교부동산", phone: "010-1111-2222", company: "판교중개사무소" },
+        premium: true, views: 2456, createdAt: "2025-11-28"
+    },
+    {
+        id: 1, title: "신논현역 초역세권 신축 오피스텔", type: "원룸", saleType: "월세", price: 500, monthlyRent: 60,
+        address: "서울시 강남구 논현동 123-45", district: "강남구", area: 33, rooms: 1, bathrooms: 1,
+        floor: 8, totalFloors: 15, buildYear: 2024,
+        options: ["에어컨", "냉장고", "세탁기", "인덕션", "신발장", "붙박이장", "전자도어락"],
+        description: "신논현역 도보 2분 거리의 신축 오피스텔입니다.",
+        lat: 37.5048, lng: 127.0242, image: "https://picsum.photos/seed/prop1/400/300",
+        agent: { name: "김부동산", phone: "010-1234-5678", company: "강남부동산" },
+        premium: true, views: 1234, createdAt: "2025-11-25"
+    },
+    {
+        id: 2, title: "강남역 대로변 투룸 오피스텔", type: "투룸", saleType: "전세", price: 35000, monthlyRent: 0,
+        address: "서울시 강남구 역삼동 789-12", district: "강남구", area: 45, rooms: 2, bathrooms: 1,
+        floor: 12, totalFloors: 20, buildYear: 2022,
+        options: ["에어컨", "냉장고", "세탁기", "가스레인지", "신발장", "붙박이장", "베란다", "주차가능"],
+        description: "강남역 5분 거리, 분리형 투룸으로 신혼부부에게 최적화된 공간입니다.",
+        lat: 37.4979, lng: 127.0276, image: "https://picsum.photos/seed/prop2/400/300",
+        agent: { name: "이공인중개사", phone: "010-2345-6789", company: "역삼공인중개사" },
+        premium: true, views: 892, createdAt: "2025-11-26"
+    },
+    {
+        id: 6, title: "홍대입구역 신축 오피스텔", type: "원룸", saleType: "월세", price: 3000, monthlyRent: 70,
+        address: "서울시 마포구 서교동 123-45", district: "마포구", area: 35, rooms: 1, bathrooms: 1,
+        floor: 7, totalFloors: 12, buildYear: 2024,
+        options: ["에어컨", "냉장고", "세탁기", "인덕션", "신발장", "붙박이장", "전자도어락", "택배보관함"],
+        description: "홍대입구역 5분 거리 신축 오피스텔입니다.",
+        lat: 37.5565, lng: 126.9236, image: "https://picsum.photos/seed/prop6/400/300",
+        agent: { name: "강공인중개사", phone: "010-6789-0123", company: "홍대부동산" },
+        premium: true, views: 1823, createdAt: "2025-11-28"
+    }
+];
+
+        // APP.JS - Main application
+        class RealEstateApp {
+            constructor() {
+                this.properties = properties;
+                this.filteredProperties = [...properties];
+                this.favorites = this.loadFavorites();
+                this.filters = { search: '', saleType: 'all', rooms: 'all' };
+                this.sortBy = 'recent';
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.renderProperties();
+                this.updateResultCount();
+                this.initializeCharts();
+                this.updateLiveStats();
+                this.updateFavoritesCount();
+            }
+
+            setupEventListeners() {
+                // Search
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        this.filters.search = e.target.value;
+                        this.applyFilters();
+                    });
+                }
+
+                // Filter button
+                const filterBtn = document.getElementById('filter-btn');
+                const filterPanel = document.getElementById('filter-panel');
+                const filterClose = document.getElementById('filter-close');
+                const filterApply = document.getElementById('filter-apply');
+                const filterReset = document.getElementById('filter-reset');
+
+                if (filterBtn) {
+                    filterBtn.addEventListener('click', () => {
+                        filterPanel.classList.add('active');
+                    });
+                }
+                if (filterClose) {
+                    filterClose.addEventListener('click', () => {
+                        filterPanel.classList.remove('active');
+                    });
+                }
+                if (filterApply) {
+                    filterApply.addEventListener('click', () => {
+                        this.applyFilters();
+                        filterPanel.classList.remove('active');
+                    });
+                }
+                if (filterReset) {
+                    filterReset.addEventListener('click', () => {
+                        this.filters = { search: '', saleType: 'all', rooms: 'all' };
+                        this.applyFilters();
+                    });
+                }
+
+                // Filter options
+                document.querySelectorAll('.filter-option[data-type]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-option[data-type]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.filters.saleType = btn.dataset.type;
+                    });
+                });
+
+                document.querySelectorAll('.filter-option[data-rooms]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-option[data-rooms]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.filters.rooms = btn.dataset.rooms;
+                    });
+                });
+
+                // Sort
+                const sortSelect = document.getElementById('sort-select');
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', (e) => {
+                        this.sortBy = e.target.value;
+                        this.sortProperties();
+                        this.renderProperties();
+                    });
+                }
+
+                // Modal close
+                const modal = document.getElementById('property-modal');
+                const modalClose = document.getElementById('modal-close');
+                if (modal) {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            this.closeModal();
+                        }
+                    });
+                }
+                if (modalClose) {
+                    modalClose.addEventListener('click', () => {
+                        this.closeModal();
+                    });
+                }
+            }
+
+            applyFilters() {
+                this.filteredProperties = this.properties.filter(property => {
+                    if (this.filters.search) {
+                        const searchLower = this.filters.search.toLowerCase();
+                        const matchesSearch = property.title.toLowerCase().includes(searchLower) ||
+                            property.address.toLowerCase().includes(searchLower) ||
+                            property.district.toLowerCase().includes(searchLower);
+                        if (!matchesSearch) return false;
+                    }
+                    if (this.filters.saleType !== 'all' && property.saleType !== this.filters.saleType) {
+                        return false;
+                    }
+                    if (this.filters.rooms !== 'all') {
+                        const roomCount = parseInt(this.filters.rooms);
+                        if (property.rooms !== roomCount) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+
+                this.sortProperties();
+                this.renderProperties();
+                this.updateResultCount();
+            }
+
+            sortProperties() {
+                switch(this.sortBy) {
+                    case 'recent':
+                        this.filteredProperties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        break;
+                    case 'price-low':
+                        this.filteredProperties.sort((a, b) => {
+                            const priceA = a.saleType === '월세' ? a.monthlyRent : a.price;
+                            const priceB = b.saleType === '월세' ? b.monthlyRent : b.price;
+                            return priceA - priceB;
+                        });
+                        break;
+                    case 'price-high':
+                        this.filteredProperties.sort((a, b) => {
+                            const priceA = a.saleType === '월세' ? a.monthlyRent : a.price;
+                            const priceB = b.saleType === '월세' ? b.monthlyRent : b.price;
+                            return priceB - priceA;
+                        });
+                        break;
+                    case 'area-large':
+                        this.filteredProperties.sort((a, b) => b.area - a.area);
+                        break;
+                }
+            }
+
+            renderProperties() {
+                const grid = document.getElementById('property-list');
+                if (!grid) return;
+
+                if (this.filteredProperties.length === 0) {
+                    grid.innerHTML = '<div class="empty-message"><h3>검색 결과가 없습니다</h3><p>다른 조건으로 검색해보세요</p></div>';
+                    return;
+                }
+
+                grid.innerHTML = this.filteredProperties.map(property => this.createPropertyCard(property)).join('');
+
+                // Add click events
+                grid.querySelectorAll('.property-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.favorite-btn')) {
+                            const propertyId = parseInt(card.dataset.id);
+                            this.showPropertyModal(propertyId);
+                        }
+                    });
+                });
+
+                grid.querySelectorAll('.favorite-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const propertyId = parseInt(btn.dataset.id);
+                        this.toggleFavorite(propertyId);
+                    });
+                });
+            }
+
+            createPropertyCard(property) {
+                const isFavorite = this.favorites.includes(property.id);
+                const priceDisplay = property.saleType === '월세' ?
+                    `${property.price}/${property.monthlyRent}` : property.price.toLocaleString();
+                const priceUnit = property.saleType === '월세' ? '만원' : '만원';
+
+                return `
+                    <div class="property-card ${property.premium ? 'premium' : ''}" data-id="${property.id}">
+                        <img src="${property.image}" alt="${property.title}" class="property-image">
+                        ${property.premium ? '<div class="premium-badge">⭐ 프리미엄</div>' : ''}
+                        <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" data-id="${property.id}">
+                            ${isFavorite ? '❤️' : '🤍'}
+                        </button>
+                        <div class="property-info">
+                            <span class="property-type">${property.type}</span>
+                            <h3 class="property-title">${property.title}</h3>
+                            <p class="property-location">📍 ${property.address}</p>
+                            <div class="property-price">${priceDisplay} <small>${priceUnit}</small></div>
+                            <div class="property-features">
+                                <span class="feature">📐 ${property.area}㎡</span>
+                                <span class="feature">🛏️ ${property.rooms}개</span>
+                                <span class="feature">🏢 ${property.floor}층</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            showPropertyModal(propertyId) {
+                const property = this.properties.find(p => p.id === propertyId);
+                if (!property) return;
+
+                const modal = document.getElementById('property-modal');
+                const modalBody = document.getElementById('modal-body');
+                const isFavorite = this.favorites.includes(property.id);
+                const priceDisplay = property.saleType === '월세' ?
+                    `${property.price}/${property.monthlyRent}만원` : `${property.price.toLocaleString()}만원`;
+
+                modalBody.innerHTML = `
+                    <img src="${property.image}" alt="${property.title}" class="modal-image">
+                    <div class="modal-header">
+                        ${property.premium ? '<div class="premium-badge">⭐ 프리미엄 매물</div>' : ''}
+                        <h2>${property.title}</h2>
+                        <p class="modal-location">📍 ${property.address}</p>
+                        <div class="modal-price">${priceDisplay}</div>
+                    </div>
+                    <div class="modal-details">
+                        <div class="detail-item"><h4>전용면적</h4><p>${property.area}㎡</p></div>
+                        <div class="detail-item"><h4>방/욕실</h4><p>${property.rooms}개 / ${property.bathrooms}개</p></div>
+                        <div class="detail-item"><h4>층수</h4><p>${property.floor}층 / ${property.totalFloors}층</p></div>
+                        <div class="detail-item"><h4>건축년도</h4><p>${property.buildYear}년</p></div>
+                    </div>
+                    <div class="modal-section">
+                        <h3>매물 설명</h3>
+                        <p>${property.description}</p>
+                    </div>
+                    <div class="modal-section">
+                        <h3>옵션</h3>
+                        <div class="options-list">
+                            ${property.options.map(option => `<div class="option-item"><span>✓</span><span>${option}</span></div>`).join('')}
+                        </div>
+                    </div>
+                    <div class="modal-section">
+                        <h3>담당 중개사</h3>
+                        <div class="agent-info">
+                            <div class="agent-avatar">${property.agent.name.charAt(0)}</div>
+                            <div class="agent-details">
+                                <h4>${property.agent.name}</h4>
+                                <p>${property.agent.company}</p>
+                                <p>📞 ${property.agent.phone}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-contact" onclick="alert('전화 연결 기능은 데모 버전에서 지원되지 않습니다.')">📞 전화하기</button>
+                        <button class="btn-tour ${isFavorite ? 'favorited' : ''}" onclick="app.toggleFavorite(${property.id}); app.showPropertyModal(${property.id});">
+                            ${isFavorite ? '❤️ 찜 해제' : '🤍 찜하기'}
+                        </button>
+                    </div>
+                `;
+
+                modal.classList.add('active');
+            }
+
+            closeModal() {
+                const modal = document.getElementById('property-modal');
+                modal.classList.remove('active');
+            }
+
+            toggleFavorite(propertyId) {
+                const index = this.favorites.indexOf(propertyId);
+                if (index > -1) {
+                    this.favorites.splice(index, 1);
+                } else {
+                    this.favorites.push(propertyId);
+                }
+                this.saveFavorites();
+                this.renderProperties();
+                this.updateFavoritesCount();
+            }
+
+            updateFavoritesCount() {
+                const countEl = document.getElementById('favorites-count');
+                if (countEl) {
+                    countEl.textContent = this.favorites.length;
+                }
+            }
+
+            loadFavorites() {
+                const saved = localStorage.getItem('favorites');
+                return saved ? JSON.parse(saved) : [];
+            }
+
+            saveFavorites() {
+                localStorage.setItem('favorites', JSON.stringify(this.favorites));
+            }
+
+            updateResultCount() {
+                const resultCount = document.getElementById('results-count');
+                if (resultCount) {
+                    resultCount.textContent = this.filteredProperties.length;
+                }
+            }
+
+            initializeCharts() {
+                if (typeof Chart === 'undefined') return;
+                this.initDistrictPriceChart();
+                this.initWeeklyTrendChart();
+                this.initPropertyTypeChart();
+            }
+
+            initDistrictPriceChart() {
+                const ctx = document.getElementById('districtPriceChart');
+                if (!ctx) return;
+
+                const districtData = {};
+                this.properties.forEach(prop => {
+                    if (!districtData[prop.district]) {
+                        districtData[prop.district] = { total: 0, count: 0 };
+                    }
+                    const price = prop.saleType === '월세' ? prop.monthlyRent : prop.price / 10000;
+                    districtData[prop.district].total += price;
+                    districtData[prop.district].count++;
+                });
+
+                const districts = Object.keys(districtData).slice(0, 5);
+                const avgPrices = districts.map(d => Math.round(districtData[d].total / districtData[d].count));
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: districts,
+                        datasets: [{
+                            label: '평균 가격 (억원)',
+                            data: avgPrices,
+                            backgroundColor: 'rgba(255, 107, 53, 0.7)',
+                            borderColor: 'rgba(255, 107, 53, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            initWeeklyTrendChart() {
+                const ctx = document.getElementById('weeklyTrendChart');
+                if (!ctx) return;
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['7일 전', '6일 전', '5일 전', '4일 전', '3일 전', '2일 전', '어제'],
+                        datasets: [{
+                            label: '거래 건수',
+                            data: [45, 52, 48, 61, 55, 67, 73],
+                            borderColor: 'rgba(9, 132, 227, 1)',
+                            backgroundColor: 'rgba(9, 132, 227, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            initPropertyTypeChart() {
+                const ctx = document.getElementById('propertyTypeChart');
+                if (!ctx) return;
+
+                const typeData = {};
+                this.properties.forEach(prop => {
+                    typeData[prop.type] = (typeData[prop.type] || 0) + 1;
+                });
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(typeData),
+                        datasets: [{
+                            data: Object.values(typeData),
+                            backgroundColor: [
+                                'rgba(255, 107, 53, 0.8)',
+                                'rgba(9, 132, 227, 0.8)',
+                                'rgba(0, 184, 148, 0.8)',
+                                'rgba(253, 203, 110, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            updateLiveStats() {
+                const totalPropertiesEl = document.getElementById('total-properties');
+                const hotPropertiesEl = document.getElementById('hot-properties');
+
+                if (totalPropertiesEl) {
+                    totalPropertiesEl.textContent = this.properties.length;
+                }
+                if (hotPropertiesEl) {
+                    const hotCount = this.properties.filter(p => p.views > 2000).length;
+                    hotPropertiesEl.textContent = hotCount;
+                }
+            }
+        }
+
+        // Initialize app
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new RealEstateApp();
+        });
+    </script>
 </body>
 </html>
