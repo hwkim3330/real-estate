@@ -11,7 +11,7 @@
 ## 프로젝트 개요
 
 서울 주요 지역(강남, 서초, 마포, 용산, 성동, 송파 등)의 부동산 매물을 검색하고 비교할 수 있는 웹 플랫폼입니다.
-직방과 유사한 깔끔한 디자인과 사용자 친화적인 인터페이스로 최적의 매물 검색 경험을 제공합니다.
+깔끔한 디자인과 사용자 친화적인 인터페이스로 최적의 매물 검색 경험을 제공합니다.
 
 ## 주요 기능
 
@@ -67,7 +67,7 @@
 - **LocalStorage**: 찜 목록 영구 저장
 
 ### Design
-- **직방 스타일 UI**: 현대적이고 깔끔한 카드 기반 레이아웃
+- **현대적인 UI**: 깔끔한 카드 기반 레이아웃
 - **커스텀 CSS 변수**: 일관된 컬러 팔레트 및 스타일링
 - **애니메이션**: 부드러운 전환 효과 및 호버 인터랙션
 
@@ -121,11 +121,12 @@ http://localhost:8000
 real-estate/
 ├── index.html              # 메인 HTML 파일
 ├── css/
-│   └── styles.css         # 전체 스타일시트 (직방 스타일)
+│   └── styles.css         # 전체 스타일시트
 ├── js/
 │   ├── app.js             # 메인 애플리케이션 로직
-│   ├── data.js            # 매물 데이터 (50+ properties)
-│   └── map.js             # 지도 컨트롤러 (Kakao/Leaflet)
+│   ├── data.js            # 매물 데이터 (60+ properties)
+│   ├── map.js             # 지도 컨트롤러 (Kakao/Leaflet)
+│   └── simulation.js      # 실시간 시뮬레이션 엔진
 └── README.md              # 프로젝트 문서
 ```
 
@@ -257,9 +258,8 @@ MIT License - 자유롭게 사용, 수정, 배포 가능
 ## 참고 자료
 
 - [Kakao Maps API 문서](https://apis.map.kakao.com/web/)
-- [직방 웹사이트](https://www.zigbang.com/)
-- [다방 웹사이트](https://www.dabangapp.com/)
 - [네이버 부동산](https://land.naver.com/)
+- [Chart.js 문서](https://www.chartjs.org/)
 
 ---
 
