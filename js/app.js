@@ -24,6 +24,8 @@ class RealEstateApp {
         this.setupEventListeners();
         this.renderProperties();
         this.updateResultCount();
+        this.initializeCharts();
+        this.updateLiveStats();
     }
 
     setupEventListeners() {
@@ -498,6 +500,224 @@ class RealEstateApp {
         if (resultCount) {
             resultCount.textContent = `총 ${this.filteredProperties.length}개의 매물`;
         }
+    }
+
+    // 차트 초기화
+    initializeCharts() {
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not loaded');
+            return;
+        }
+
+        this.initDistrictPriceChart();
+        this.initWeeklyTrendChart();
+        this.initPropertyTypeChart();
+    }
+
+    // 지역별 평균 가격 차트
+    initDistrictPriceChart() {
+        const ctx = document.getElementById('districtPriceChart');
+        if (!ctx) return;
+
+        // 지역별 평균 가격 계산
+        const districtData = {};
+        this.properties.forEach(prop => {
+            if (!districtData[prop.district]) {
+                districtData[prop.district] = { total: 0, count: 0 };
+            }
+            const price = prop.saleType === '월세' ? prop.monthlyRent : prop.price / 10000;
+            districtData[prop.district].total += price;
+            districtData[prop.district].count++;
+        });
+
+        const districts = Object.keys(districtData).slice(0, 7);
+        const avgPrices = districts.map(d =>
+            Math.round(districtData[d].total / districtData[d].count)
+        );
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: districts,
+                datasets: [{
+                    label: '평균 가격 (억원)',
+                    data: avgPrices,
+                    backgroundColor: 'rgba(255, 107, 53, 0.7)',
+                    borderColor: 'rgba(255, 107, 53, 1)',
+                    borderWidth: 2,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '평균: ' + context.parsed.y + '억원';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '억';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 최근 7일 거래 추이 차트
+    initWeeklyTrendChart() {
+        const ctx = document.getElementById('weeklyTrendChart');
+        if (!ctx) return;
+
+        // 시뮬레이션 데이터 생성
+        const labels = ['7일 전', '6일 전', '5일 전', '4일 전', '3일 전', '2일 전', '어제'];
+        const data = [45, 52, 48, 61, 55, 67, 73];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '거래 건수',
+                    data: data,
+                    borderColor: 'rgba(9, 132, 227, 1)',
+                    backgroundColor: 'rgba(9, 132, 227, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgba(9, 132, 227, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '거래: ' + context.parsed.y + '건';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '건';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 매물 타입 분포 차트
+    initPropertyTypeChart() {
+        const ctx = document.getElementById('propertyTypeChart');
+        if (!ctx) return;
+
+        // 매물 타입별 개수 계산
+        const typeData = {};
+        this.properties.forEach(prop => {
+            typeData[prop.type] = (typeData[prop.type] || 0) + 1;
+        });
+
+        const types = Object.keys(typeData);
+        const counts = Object.values(typeData);
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: types,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        'rgba(255, 107, 53, 0.8)',
+                        'rgba(9, 132, 227, 0.8)',
+                        'rgba(0, 184, 148, 0.8)',
+                        'rgba(253, 203, 110, 0.8)',
+                        'rgba(214, 48, 49, 0.8)',
+                        'rgba(108, 92, 231, 0.8)'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + '개 (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 실시간 통계 업데이트
+    updateLiveStats() {
+        const totalPropertiesEl = document.getElementById('total-properties');
+        const hotPropertiesEl = document.getElementById('hot-properties');
+
+        if (totalPropertiesEl) {
+            totalPropertiesEl.textContent = this.properties.length;
+        }
+
+        if (hotPropertiesEl) {
+            const hotCount = this.properties.filter(p => p.views > 2000).length;
+            hotPropertiesEl.textContent = hotCount;
+        }
+
+        // 주기적으로 업데이트 (30초마다)
+        setInterval(() => {
+            if (totalPropertiesEl) {
+                totalPropertiesEl.textContent = this.properties.length;
+            }
+            if (hotPropertiesEl) {
+                const hotCount = this.properties.filter(p => p.views > 2000).length;
+                hotPropertiesEl.textContent = hotCount;
+            }
+        }, 30000);
     }
 }
 

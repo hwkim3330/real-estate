@@ -1,6 +1,6 @@
-# 직방 스타일 부동산 플랫폼
+# 집다 부동산 플랫폼
 
-> 한국형 부동산 중개 플랫폼 - 직방(Zigbang) 스타일의 현대적이고 직관적인 UI/UX
+> 한국형 부동산 중개 플랫폼 - 현대적이고 직관적인 UI/UX
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)

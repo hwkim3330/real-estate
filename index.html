@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>직방PRO - 대한민국 NO.1 부동산 플랫폼</title>
+    <title>집다 - 대한민국 NO.1 부동산 플랫폼</title>
     <meta name="description" content="서울 강남, 서초, 마포 등 전국 원룸, 투룸, 오피스텔 매물 정보. 실시간 업데이트!">
 
     <!-- Kakao Map API -->
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY_HERE&libraries=services,clusterer"></script>
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,7 +28,7 @@
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-home"></i>
-                    <span>직방PRO</span>
+                    <span>집다</span>
                 </div>
 
                 <nav class="nav">
@@ -181,6 +184,77 @@
         <!-- List View -->
         <div class="list-view active" id="list-view">
             <div class="container">
+                <!-- Statistics Section -->
+                <div class="statistics-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        실시간 부동산 시장 분석
+                    </h2>
+
+                    <div class="stats-grid">
+                        <!-- 지역별 평균 가격 -->
+                        <div class="stat-card">
+                            <h3>지역별 평균 가격</h3>
+                            <canvas id="districtPriceChart"></canvas>
+                        </div>
+
+                        <!-- 최근 7일 거래 추이 -->
+                        <div class="stat-card">
+                            <h3>최근 7일 거래 추이</h3>
+                            <canvas id="weeklyTrendChart"></canvas>
+                        </div>
+
+                        <!-- 매물 타입 분포 -->
+                        <div class="stat-card">
+                            <h3>매물 타입 분포</h3>
+                            <canvas id="propertyTypeChart"></canvas>
+                        </div>
+
+                        <!-- 실시간 통계 -->
+                        <div class="stat-card live-stats">
+                            <h3>실시간 통계</h3>
+                            <div class="stats-list">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">전체 매물</div>
+                                        <div class="stat-value" id="total-properties">0</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-fire"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">오늘의 인기 매물</div>
+                                        <div class="stat-value" id="hot-properties">0</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">오늘 거래 완료</div>
+                                        <div class="stat-value" id="sold-today">12</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">평균 거래 시간</div>
+                                        <div class="stat-value">3.2일</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Premium Banner -->
                 <div class="premium-banner">
                     <div class="premium-content">
@@ -261,7 +335,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>직방PRO</h4>
+                    <h4>집다</h4>
                     <p>대한민국 NO.1 부동산 플랫폼</p>
                     <p>실시간 매물 정보 • 안심 거래 • 프리미엄 서비스</p>
                 </div>
@@ -289,7 +363,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2025 직방PRO. Built with ❤️ in Seoul, Korea</p>
+                <p>&copy; 2025 집다. Built with ❤️ in Seoul, Korea</p>
                 <div class="footer-badges">
                     <span class="badge-item"><i class="fas fa-shield-alt"></i> 안심거래</span>
                     <span class="badge-item"><i class="fas fa-certificate"></i> 공인중개사</span>
@@ -302,6 +376,7 @@
     <!-- Scripts -->
     <script src="js/data.js"></script>
     <script src="js/map.js"></script>
+    <script src="js/simulation.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

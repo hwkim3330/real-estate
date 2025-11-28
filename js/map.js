@@ -23,7 +23,7 @@ class MapController {
         if (!container) return;
 
         const options = {
-            center: new kakao.maps.LatLng(37.5117, 127.0590), // 서울 중심
+            center: new kakao.maps.LatLng(37.3943, 127.1105), // 판교 중심
             level: 6
         };
 
@@ -65,7 +65,7 @@ class MapController {
             return;
         }
 
-        this.map = L.map('map').setView([37.5117, 127.0590], 12);
+        this.map = L.map('map').setView([37.3943, 127.1105], 12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
