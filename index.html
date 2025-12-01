@@ -801,8 +801,10 @@
                 let downCount = 0;
 
                 this.properties.forEach(property => {
-                    const volatility = property.basePrice > 50000 ? 500 : 100;
-                    const change = (Math.random() - 0.5) * volatility;
+                    // Percentage-based volatility: 0.5% ~ 1.5%
+                    const volatilityPercent = (Math.random() * 0.01 + 0.005); // 0.005 ~ 0.015 (0.5% ~ 1.5%)
+                    const changePercent = (Math.random() - 0.5) * 2 * volatilityPercent;
+                    const change = property.currentPrice * changePercent;
                     const newPrice = Math.round(property.currentPrice + change);
 
                     property.currentPrice = Math.max(
