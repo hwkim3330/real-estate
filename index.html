@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -17,16 +19,25 @@
         }
 
         :root {
-            --primary: #0066FF;
-            --success: #00C73C;
-            --danger: #FF3B30;
-            --warning: #FF9500;
-            --bg: #F8F9FA;
+            --sf-gray-1: #1d1d1f;
+            --sf-gray-2: #2d2d2f;
+            --sf-gray-3: #424245;
+            --sf-gray-4: #86868b;
+            --sf-gray-5: #f5f5f7;
+            --sf-white: #ffffff;
+            --sf-blue: #007aff;
+            --sf-green: #34c759;
+            --sf-red: #ff3b30;
+            --sf-orange: #ff9500;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             overflow: hidden;
+            background: #000;
+            color: var(--sf-white);
         }
 
         /* Header */
@@ -35,26 +46,58 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 60px;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: 52px;
+            background: rgba(29, 29, 31, 0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 2rem;
-            z-index: 1000;
+            padding: 0 22px;
+            z-index: 9999;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
+            font-size: 21px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--sf-white);
+        }
+
+        .header-center {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: -0.2px;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--sf-white);
+        }
+
+        .filter-btn.active {
+            background: var(--sf-blue);
+            color: var(--sf-white);
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 16px;
         }
 
         .balance {
@@ -64,170 +107,254 @@
         }
 
         .balance-label {
-            font-size: 0.75rem;
-            color: #666;
+            font-size: 10px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .balance-amount {
-            font-size: 1.25rem;
+            font-size: 17px;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--sf-white);
+            letter-spacing: -0.5px;
+            font-variant-numeric: tabular-nums;
         }
 
         .profit {
-            font-size: 0.85rem;
+            font-size: 11px;
             font-weight: 600;
+            margin-top: 2px;
+            font-variant-numeric: tabular-nums;
         }
 
-        .profit.positive { color: var(--danger); }
-        .profit.negative { color: var(--primary); }
+        .profit.positive { color: var(--sf-red); }
+        .profit.negative { color: var(--sf-blue); }
 
         /* Map Container */
         #map {
             position: fixed;
-            top: 60px;
+            top: 52px;
             left: 0;
             right: 0;
             bottom: 0;
             z-index: 1;
         }
 
+        /* Custom Markers */
+        .custom-marker {
+            background: rgba(0, 122, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .custom-marker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
+        }
+
+        .custom-marker.owned {
+            background: rgba(52, 199, 89, 0.9);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .custom-marker.affordable {
+            background: rgba(255, 149, 0, 0.9);
+        }
+
         /* Sidebar */
         .sidebar {
             position: fixed;
-            top: 60px;
-            right: 0;
-            width: 400px;
-            height: calc(100vh - 60px);
-            background: white;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            top: 52px;
+            right: -420px;
+            width: 420px;
+            height: calc(100vh - 52px);
+            background: rgba(29, 29, 31, 0.85);
+            backdrop-filter: saturate(180%) blur(40px);
+            -webkit-backdrop-filter: saturate(180%) blur(40px);
+            border-left: 0.5px solid rgba(255, 255, 255, 0.1);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
             overflow-y: auto;
-            z-index: 100;
-            transform: translateX(100%);
-            transition: transform 0.3s;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
         }
 
         .sidebar.active {
-            transform: translateX(0);
+            right: 0;
         }
 
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #E5E5E5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 24px 24px 16px;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
         }
 
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .sidebar-content {
-            padding: 1.5rem;
-        }
-
-        .property-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .property-price {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .property-title {
-            font-size: 1.25rem;
+        .sidebar-title {
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 4px;
+            letter-spacing: -1px;
         }
 
-        .property-location {
-            color: #666;
-            margin-bottom: 1.5rem;
+        .sidebar-subtitle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
         }
 
-        .property-stats {
+        .close-sidebar {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-sidebar:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .property-details {
+            padding: 24px;
+        }
+
+        .price-badge {
+            display: inline-block;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--sf-blue);
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .property-info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 12px;
+            margin: 20px 0;
         }
 
-        .stat-item {
-            padding: 1rem;
-            background: var(--bg);
-            border-radius: 8px;
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            color: #666;
-            margin-bottom: 0.25rem;
+        .info-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .stat-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .price-history {
-            margin: 1.5rem 0;
-        }
-
-        .history-title {
-            font-weight: 700;
-            margin-bottom: 1rem;
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--sf-white);
         }
 
         .chart-container {
-            height: 200px;
-            margin-bottom: 1.5rem;
+            margin: 24px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .action-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 12px;
+            margin-top: 24px;
         }
 
         .btn {
             flex: 1;
-            padding: 1rem;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: -0.3px;
         }
 
-        .btn-buy {
-            background: var(--danger);
+        .btn-primary {
+            background: var(--sf-blue);
             color: white;
         }
 
-        .btn-buy:hover {
-            background: #CC0000;
-            transform: translateY(-2px);
+        .btn-primary:hover {
+            background: #0051d5;
+            transform: scale(1.02);
         }
 
-        .btn-sell {
-            background: var(--primary);
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
         }
 
-        .btn-sell:hover {
-            background: #0052CC;
-            transform: translateY(-2px);
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-danger {
+            background: var(--sf-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e6342b;
+            transform: scale(1.02);
         }
 
         .btn:disabled {
@@ -240,370 +367,361 @@
             position: fixed;
             bottom: 20px;
             left: 20px;
-            width: 350px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            width: 320px;
+            background: rgba(29, 29, 31, 0.85);
+            backdrop-filter: saturate(180%) blur(40px);
+            -webkit-backdrop-filter: saturate(180%) blur(40px);
+            border-radius: 20px;
+            padding: 20px;
             z-index: 100;
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
-        .panel-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #E5E5E5;
+        .portfolio-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 16px;
         }
 
-        .panel-title {
-            font-weight: 700;
+        .portfolio-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .toggle-btn {
-            background: none;
+        .expand-btn {
+            background: rgba(255, 255, 255, 0.1);
             border: none;
-            font-size: 1.25rem;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
             cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
         }
 
-        .panel-content {
-            max-height: 400px;
+        .expand-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .portfolio-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 12px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--sf-white);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .property-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .property-list.expanded {
+            max-height: 300px;
             overflow-y: auto;
         }
 
-        .portfolio-item {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #E5E5E5;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .portfolio-item:hover {
-            background: var(--bg);
-        }
-
-        .portfolio-item-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .portfolio-item-info {
-            font-size: 0.85rem;
-            color: #666;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .portfolio-profit {
-            font-weight: 700;
-        }
-
-        /* Map Controls */
-        .map-controls {
-            position: fixed;
-            top: 80px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            z-index: 100;
-        }
-
-        .map-control-btn {
-            background: white;
-            border: none;
-            width: 50px;
-            height: 50px;
+        .property-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin-bottom: 8px;
             cursor: pointer;
-            font-size: 1.25rem;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
         }
 
-        .map-control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        .property-item:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Toast Notification */
+        .property-item-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .property-item-price {
+            font-size: 11px;
+            color: var(--sf-green);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            z-index: 1000;
-            transform: translateX(500px);
-            transition: transform 0.3s;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(29, 29, 31, 0.9);
+            backdrop-filter: saturate(180%) blur(40px);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .toast.show {
-            transform: translateX(0);
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error {
-            border-left: 4px solid var(--danger);
-        }
-
-        /* Market Status */
-        .market-status {
+        /* Market Indicator */
+        .market-indicator {
             position: fixed;
-            top: 80px;
+            top: 72px;
             right: 20px;
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            background: rgba(29, 29, 31, 0.85);
+            backdrop-filter: saturate(180%) blur(40px);
+            padding: 12px 20px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
             z-index: 100;
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .status-label {
-            font-size: 0.75rem;
-            color: #666;
+        .market-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .status-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        /* Leaflet Custom Marker */
-        .custom-marker {
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            font-weight: 700;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+        .market-dot.up { background: var(--sf-red); }
+        .market-dot.down { background: var(--sf-blue); }
+        .market-dot.stable { background: var(--sf-gray-4); }
 
-        .custom-marker:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                right: -100%;
+            }
 
-        .custom-marker.owned {
-            background: var(--primary);
-            color: white;
-        }
+            .portfolio-panel {
+                width: calc(100% - 40px);
+            }
 
-        .custom-marker.for-sale {
-            background: white;
-            color: var(--primary);
+            .header-center {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="logo">부동산24</div>
+        <div class="header-center">
+            <button class="filter-btn active" onclick="filterProperties('all')">전체</button>
+            <button class="filter-btn" onclick="filterProperties('owned')">보유중</button>
+            <button class="filter-btn" onclick="filterProperties('affordable')">1억 이하</button>
+            <button class="filter-btn" onclick="filterProperties('for-sale')">판매중</button>
+        </div>
         <div class="user-info">
             <div class="balance">
-                <div class="balance-label">보유자산</div>
-                <div class="balance-amount" id="balance">100,000,000원</div>
-                <div class="profit" id="total-profit">수익률 +0%</div>
+                <div class="balance-label">Balance</div>
+                <div class="balance-amount" id="balance">0원</div>
+                <div class="profit" id="totalProfit">+0원 (0.0%)</div>
             </div>
         </div>
     </div>
 
-    <!-- Map -->
     <div id="map"></div>
 
-    <!-- Map Controls -->
-    <div class="map-controls">
-        <button class="map-control-btn" onclick="filterProperties('all')" title="전체">🏘️</button>
-        <button class="map-control-btn" onclick="filterProperties('owned')" title="보유중">🏠</button>
-        <button class="map-control-btn" onclick="filterProperties('for-sale')" title="매물">💰</button>
+    <div class="market-indicator">
+        <div class="market-dot stable" id="marketDot"></div>
+        <span id="marketStatus">시장 보통</span>
     </div>
 
-    <!-- Market Status -->
-    <div class="market-status">
-        <div class="status-label">시장 상태</div>
-        <div class="status-value" id="market-trend">보통</div>
-    </div>
-
-    <!-- Portfolio Panel -->
     <div class="portfolio-panel">
-        <div class="panel-header">
-            <div class="panel-title">보유 매물 (<span id="portfolio-count">0</span>)</div>
-            <button class="toggle-btn" onclick="togglePortfolio()">▼</button>
+        <div class="portfolio-header">
+            <div class="portfolio-title">Portfolio</div>
+            <button class="expand-btn" onclick="togglePortfolio()">▼</button>
         </div>
-        <div class="panel-content" id="portfolio-list"></div>
+        <div class="portfolio-stats">
+            <div class="stat-card">
+                <div class="stat-label">보유 매물</div>
+                <div class="stat-value" id="ownedCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">총 자산</div>
+                <div class="stat-value" id="totalAssets">0억</div>
+            </div>
+        </div>
+        <div class="property-list" id="propertyList"></div>
     </div>
 
-    <!-- Property Sidebar -->
     <div class="sidebar" id="sidebar">
+        <button class="close-sidebar" onclick="closeSidebar()">✕</button>
         <div class="sidebar-header">
-            <h2>매물 상세</h2>
-            <button class="close-btn" onclick="closeSidebar()">✕</button>
+            <div class="sidebar-title" id="propertyTitle">매물 정보</div>
+            <div class="sidebar-subtitle" id="propertyLocation">위치</div>
         </div>
-        <div class="sidebar-content" id="sidebar-content"></div>
+        <div class="property-details">
+            <div class="price-badge" id="propertyPrice">0억</div>
+
+            <div class="property-info-grid">
+                <div class="info-item">
+                    <div class="info-label">면적</div>
+                    <div class="info-value" id="propertyArea">0㎡</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">방</div>
+                    <div class="info-value" id="propertyRooms">0개</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">유형</div>
+                    <div class="info-value" id="propertyType">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">준공</div>
+                    <div class="info-value" id="propertyYear">-</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">시세 변동</div>
+                <canvas id="priceChart" height="120"></canvas>
+            </div>
+
+            <div class="action-buttons" id="actionButtons">
+                <button class="btn btn-primary" onclick="buyProperty()">매수하기</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // Database
+        let map;
+        let markers = [];
+        let currentProperty = null;
+        let priceChart = null;
+        let db = null;
+
         class PropertyDatabase {
             constructor() {
                 this.properties = this.loadProperties();
                 this.user = this.loadUser();
                 this.transactions = this.loadTransactions();
                 this.priceUpdateInterval = null;
+                this.currentFilter = 'all';
             }
 
             loadProperties() {
-                const saved = localStorage.getItem('properties');
+                const saved = localStorage.getItem('properties_v2');
                 if (saved) return JSON.parse(saved);
 
+                // 50+ properties across Seoul with various price ranges
                 return [
-                    {
-                        id: 1,
-                        title: "판교테크노밸리 알파돔시티 2차",
-                        location: "경기도 성남시 분당구 삼평동",
-                        basePrice: 85000,
-                        currentPrice: 85000,
-                        area: 84,
-                        rooms: 3,
-                        buildYear: 2021,
-                        lat: 37.4020,
-                        lng: 127.1080,
-                        image: "https://picsum.photos/seed/pangyo1/800/600",
-                        priceHistory: [82000, 83000, 84000, 84500, 85000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 2,
-                        title: "판교 현대아이파크",
-                        location: "경기도 성남시 분당구 백현동",
-                        basePrice: 120000,
-                        currentPrice: 120000,
-                        area: 102,
-                        rooms: 4,
-                        buildYear: 2018,
-                        lat: 37.3944,
-                        lng: 127.1116,
-                        image: "https://picsum.photos/seed/pangyo2/800/600",
-                        priceHistory: [115000, 116000, 117500, 119000, 120000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 3,
-                        title: "강남 래미안대치팰리스",
-                        location: "서울시 강남구 대치동",
-                        basePrice: 195000,
-                        currentPrice: 195000,
-                        area: 84,
-                        rooms: 3,
-                        buildYear: 2020,
-                        lat: 37.4979,
-                        lng: 127.0622,
-                        image: "https://picsum.photos/seed/gangnam1/800/600",
-                        priceHistory: [188000, 190000, 192000, 193500, 195000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 4,
-                        title: "서초 아크로리버파크",
-                        location: "서울시 서초구 반포동",
-                        basePrice: 175000,
-                        currentPrice: 175000,
-                        area: 84,
-                        rooms: 3,
-                        buildYear: 2020,
-                        lat: 37.5033,
-                        lng: 127.0036,
-                        image: "https://picsum.photos/seed/seocho1/800/600",
-                        priceHistory: [168000, 170000, 172000, 173500, 175000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 5,
-                        title: "송파 헬리오시티",
-                        location: "서울시 송파구 거여동",
-                        basePrice: 98000,
-                        currentPrice: 98000,
-                        area: 84,
-                        rooms: 3,
-                        buildYear: 2021,
-                        lat: 37.4933,
-                        lng: 127.1450,
-                        image: "https://picsum.photos/seed/songpa1/800/600",
-                        priceHistory: [93000, 94500, 96000, 97000, 98000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 6,
-                        title: "마포 아크로리버뷰",
-                        location: "서울시 마포구 서교동",
-                        basePrice: 125000,
-                        currentPrice: 125000,
-                        area: 84,
-                        rooms: 3,
-                        buildYear: 2019,
-                        lat: 37.5565,
-                        lng: 126.9236,
-                        image: "https://picsum.photos/seed/mapo1/800/600",
-                        priceHistory: [118000, 120000, 122000, 123500, 125000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 7,
-                        title: "잠실 엘스",
-                        location: "서울시 송파구 잠실동",
-                        basePrice: 168000,
-                        currentPrice: 168000,
-                        area: 84,
-                        rooms: 3,
-                        buildYear: 2017,
-                        lat: 37.5133,
-                        lng: 127.1000,
-                        image: "https://picsum.photos/seed/jamsil1/800/600",
-                        priceHistory: [160000, 162000, 164500, 166000, 168000],
-                        owned: false,
-                        purchasePrice: null
-                    },
-                    {
-                        id: 8,
-                        title: "용산 아이파크",
-                        location: "서울시 용산구 한강로3가",
-                        basePrice: 210000,
-                        currentPrice: 210000,
-                        area: 114,
-                        rooms: 4,
-                        buildYear: 2011,
-                        lat: 37.5311,
-                        lng: 126.9658,
-                        image: "https://picsum.photos/seed/yongsan1/800/600",
-                        priceHistory: [200000, 203000, 206000, 208000, 210000],
-                        owned: false,
-                        purchasePrice: null
-                    }
+                    // Affordable Studios/One-rooms (5000-8000만원) - 20개
+                    {id: 1, title: "신림역 원룸", location: "서울시 관악구 신림동", type: "원룸", basePrice: 5500, currentPrice: 5500, area: 16, rooms: 1, buildYear: 2019, lat: 37.4842, lng: 126.9297, priceHistory: [5300, 5400, 5450, 5480, 5500], owned: false, purchasePrice: null},
+                    {id: 2, title: "건대입구 오피스텔", location: "서울시 광진구 화양동", type: "오피스텔", basePrice: 6800, currentPrice: 6800, area: 19, rooms: 1, buildYear: 2020, lat: 37.5402, lng: 127.0695, priceHistory: [6500, 6600, 6700, 6750, 6800], owned: false, purchasePrice: null},
+                    {id: 3, title: "신촌역 원룸", location: "서울시 서대문구 창천동", type: "원룸", basePrice: 7200, currentPrice: 7200, area: 18, rooms: 1, buildYear: 2021, lat: 37.5559, lng: 126.9364, priceHistory: [7000, 7100, 7150, 7180, 7200], owned: false, purchasePrice: null},
+                    {id: 4, title: "노원역 원룸", location: "서울시 노원구 상계동", type: "원룸", basePrice: 5200, currentPrice: 5200, area: 17, rooms: 1, buildYear: 2018, lat: 37.6554, lng: 127.0617, priceHistory: [5000, 5050, 5100, 5150, 5200], owned: false, purchasePrice: null},
+                    {id: 5, title: "구로디지털 오피스텔", location: "서울시 구로구 구로동", type: "오피스텔", basePrice: 6500, currentPrice: 6500, area: 20, rooms: 1, buildYear: 2020, lat: 37.4854, lng: 126.9015, priceHistory: [6300, 6350, 6400, 6450, 6500], owned: false, purchasePrice: null},
+                    {id: 6, title: "홍대입구 원룸", location: "서울시 마포구 서교동", type: "원룸", basePrice: 7800, currentPrice: 7800, area: 17, rooms: 1, buildYear: 2021, lat: 37.5566, lng: 126.9233, priceHistory: [7500, 7600, 7700, 7750, 7800], owned: false, purchasePrice: null},
+                    {id: 7, title: "왕십리역 원룸", location: "서울시 성동구 행당동", type: "원룸", basePrice: 6900, currentPrice: 6900, area: 18, rooms: 1, buildYear: 2019, lat: 37.5614, lng: 127.0375, priceHistory: [6700, 6750, 6800, 6850, 6900], owned: false, purchasePrice: null},
+                    {id: 8, title: "천호역 원룸", location: "서울시 강동구 천호동", type: "원룸", basePrice: 5800, currentPrice: 5800, area: 19, rooms: 1, buildYear: 2020, lat: 37.5385, lng: 127.1239, priceHistory: [5600, 5650, 5700, 5750, 5800], owned: false, purchasePrice: null},
+                    {id: 9, title: "이대역 원룸", location: "서울시 서대문구 대현동", type: "원룸", basePrice: 7400, currentPrice: 7400, area: 16, rooms: 1, buildYear: 2021, lat: 37.5565, lng: 126.9459, priceHistory: [7200, 7250, 7300, 7350, 7400], owned: false, purchasePrice: null},
+                    {id: 10, title: "성신여대 원룸", location: "서울시 성북구 동선동", type: "원룸", basePrice: 6300, currentPrice: 6300, area: 17, rooms: 1, buildYear: 2019, lat: 37.5926, lng: 127.0166, priceHistory: [6100, 6150, 6200, 6250, 6300], owned: false, purchasePrice: null},
+                    {id: 11, title: "답십리역 원룸", location: "서울시 동대문구 답십리동", type: "원룸", basePrice: 5900, currentPrice: 5900, area: 18, rooms: 1, buildYear: 2018, lat: 37.5663, lng: 127.0551, priceHistory: [5700, 5750, 5800, 5850, 5900], owned: false, purchasePrice: null},
+                    {id: 12, title: "신도림역 오피스텔", location: "서울시 구로구 신도림동", type: "오피스텔", basePrice: 6400, currentPrice: 6400, area: 19, rooms: 1, buildYear: 2020, lat: 37.5089, lng: 126.8912, priceHistory: [6200, 6250, 6300, 6350, 6400], owned: false, purchasePrice: null},
+                    {id: 13, title: "혜화역 원룸", location: "서울시 종로구 혜화동", type: "원룸", basePrice: 7600, currentPrice: 7600, area: 17, rooms: 1, buildYear: 2021, lat: 37.5820, lng: 127.0018, priceHistory: [7400, 7450, 7500, 7550, 7600], owned: false, purchasePrice: null},
+                    {id: 14, title: "미아사거리 원룸", location: "서울시 강북구 미아동", type: "원룸", basePrice: 5600, currentPrice: 5600, area: 18, rooms: 1, buildYear: 2019, lat: 37.6132, lng: 127.0291, priceHistory: [5400, 5450, 5500, 5550, 5600], owned: false, purchasePrice: null},
+                    {id: 15, title: "공덕역 오피스텔", location: "서울시 마포구 공덕동", type: "오피스텔", basePrice: 7900, currentPrice: 7900, area: 20, rooms: 1, buildYear: 2021, lat: 37.5447, lng: 126.9516, priceHistory: [7700, 7750, 7800, 7850, 7900], owned: false, purchasePrice: null},
+                    {id: 16, title: "회기역 원룸", location: "서울시 동대문구 회기동", type: "원룸", basePrice: 6100, currentPrice: 6100, area: 17, rooms: 1, buildYear: 2020, lat: 37.5895, lng: 127.0585, priceHistory: [5900, 5950, 6000, 6050, 6100], owned: false, purchasePrice: null},
+                    {id: 17, title: "동대문역사 원룸", location: "서울시 중구 을지로6가", type: "원룸", basePrice: 7100, currentPrice: 7100, area: 18, rooms: 1, buildYear: 2020, lat: 37.5658, lng: 127.0095, priceHistory: [6900, 6950, 7000, 7050, 7100], owned: false, purchasePrice: null},
+                    {id: 18, title: "사당역 원룸", location: "서울시 동작구 사당동", type: "원룸", basePrice: 6600, currentPrice: 6600, area: 19, rooms: 1, buildYear: 2019, lat: 37.4764, lng: 126.9816, priceHistory: [6400, 6450, 6500, 6550, 6600], owned: false, purchasePrice: null},
+                    {id: 19, title: "종각역 오피스텔", location: "서울시 종로구 종로1가", type: "오피스텔", basePrice: 8000, currentPrice: 8000, area: 19, rooms: 1, buildYear: 2021, lat: 37.5703, lng: 126.9826, priceHistory: [7800, 7850, 7900, 7950, 8000], owned: false, purchasePrice: null},
+                    {id: 20, title: "문래역 원룸", location: "서울시 영등포구 문래동", type: "원룸", basePrice: 6200, currentPrice: 6200, area: 18, rooms: 1, buildYear: 2020, lat: 37.5177, lng: 126.8949, priceHistory: [6000, 6050, 6100, 6150, 6200], owned: false, purchasePrice: null},
+
+                    // Two-rooms/Villas (7000-15000만원) - 15개
+                    {id: 21, title: "목동 투룸", location: "서울시 양천구 목동", type: "빌라", basePrice: 9500, currentPrice: 9500, area: 42, rooms: 2, buildYear: 2019, lat: 37.5262, lng: 126.8755, priceHistory: [9200, 9300, 9350, 9400, 9500], owned: false, purchasePrice: null},
+                    {id: 22, title: "성수동 투룸", location: "서울시 성동구 성수동2가", type: "빌라", basePrice: 11000, currentPrice: 11000, area: 45, rooms: 2, buildYear: 2020, lat: 37.5445, lng: 127.0557, priceHistory: [10500, 10700, 10850, 10920, 11000], owned: false, purchasePrice: null},
+                    {id: 23, title: "연남동 투룸", location: "서울시 마포구 연남동", type: "빌라", basePrice: 12500, currentPrice: 12500, area: 48, rooms: 2, buildYear: 2021, lat: 37.5651, lng: 126.9238, priceHistory: [12000, 12200, 12350, 12420, 12500], owned: false, purchasePrice: null},
+                    {id: 24, title: "방배동 투룸", location: "서울시 서초구 방배동", type: "빌라", basePrice: 13500, currentPrice: 13500, area: 50, rooms: 2, buildYear: 2020, lat: 37.4814, lng: 126.9967, priceHistory: [13000, 13200, 13350, 13420, 13500], owned: false, purchasePrice: null},
+                    {id: 25, title: "금호동 투룸", location: "서울시 성동구 금호동4가", type: "빌라", basePrice: 8800, currentPrice: 8800, area: 40, rooms: 2, buildYear: 2019, lat: 37.5471, lng: 127.0181, priceHistory: [8500, 8600, 8700, 8750, 8800], owned: false, purchasePrice: null},
+                    {id: 26, title: "망원동 투룸", location: "서울시 마포구 망원동", type: "빌라", basePrice: 10500, currentPrice: 10500, area: 44, rooms: 2, buildYear: 2020, lat: 37.5558, lng: 126.9106, priceHistory: [10100, 10200, 10350, 10420, 10500], owned: false, purchasePrice: null},
+                    {id: 27, title: "상도동 투룸", location: "서울시 동작구 상도동", type: "빌라", basePrice: 9200, currentPrice: 9200, area: 43, rooms: 2, buildYear: 2019, lat: 37.5019, lng: 126.9496, priceHistory: [8900, 9000, 9100, 9150, 9200], owned: false, purchasePrice: null},
+                    {id: 28, title: "길음동 투룸", location: "서울시 성북구 길음동", type: "빌라", basePrice: 8500, currentPrice: 8500, area: 41, rooms: 2, buildYear: 2018, lat: 37.6014, lng: 127.0253, priceHistory: [8200, 8300, 8400, 8450, 8500], owned: false, purchasePrice: null},
+                    {id: 29, title: "신사동 투룸", location: "서울시 강남구 신사동", type: "빌라", basePrice: 14500, currentPrice: 14500, area: 52, rooms: 2, buildYear: 2021, lat: 37.5171, lng: 127.0203, priceHistory: [14000, 14200, 14350, 14420, 14500], owned: false, purchasePrice: null},
+                    {id: 30, title: "용문동 투룸", location: "서울시 용산구 용문동", type: "빌라", basePrice: 11800, currentPrice: 11800, area: 46, rooms: 2, buildYear: 2020, lat: 37.5308, lng: 126.9648, priceHistory: [11400, 11500, 11650, 11720, 11800], owned: false, purchasePrice: null},
+                    {id: 31, title: "행당동 투룸", location: "서울시 성동구 행당동", type: "빌라", basePrice: 9800, currentPrice: 9800, area: 43, rooms: 2, buildYear: 2019, lat: 37.5614, lng: 127.0375, priceHistory: [9500, 9600, 9700, 9750, 9800], owned: false, purchasePrice: null},
+                    {id: 32, title: "중계동 투룸", location: "서울시 노원구 중계동", type: "빌라", basePrice: 8200, currentPrice: 8200, area: 40, rooms: 2, buildYear: 2018, lat: 37.6381, lng: 127.0733, priceHistory: [7900, 8000, 8100, 8150, 8200], owned: false, purchasePrice: null},
+                    {id: 33, title: "장위동 투룸", location: "서울시 성북구 장위동", type: "빌라", basePrice: 7800, currentPrice: 7800, area: 39, rooms: 2, buildYear: 2018, lat: 37.6125, lng: 127.0474, priceHistory: [7500, 7600, 7700, 7750, 7800], owned: false, purchasePrice: null},
+                    {id: 34, title: "이촌동 투룸", location: "서울시 용산구 이촌동", type: "빌라", basePrice: 13000, currentPrice: 13000, area: 49, rooms: 2, buildYear: 2020, lat: 37.5242, lng: 126.9657, priceHistory: [12600, 12700, 12850, 12920, 13000], owned: false, purchasePrice: null},
+                    {id: 35, title: "명륜동 투룸", location: "서울시 종로구 명륜4가", type: "빌라", basePrice: 10200, currentPrice: 10200, area: 44, rooms: 2, buildYear: 2019, lat: 37.5855, lng: 127.0013, priceHistory: [9900, 10000, 10100, 10150, 10200], owned: false, purchasePrice: null},
+
+                    // Mid-range apartments (1억-5억) - 10개
+                    {id: 36, title: "가락시장 래미안", location: "서울시 송파구 가락동", type: "아파트", basePrice: 28000, currentPrice: 28000, area: 59, rooms: 3, buildYear: 2018, lat: 37.4928, lng: 127.1182, priceHistory: [27000, 27300, 27600, 27800, 28000], owned: false, purchasePrice: null},
+                    {id: 37, title: "반포 자이아파트", location: "서울시 서초구 반포동", type: "아파트", basePrice: 45000, currentPrice: 45000, area: 84, rooms: 3, buildYear: 2019, lat: 37.5033, lng: 127.0041, priceHistory: [43500, 44000, 44500, 44750, 45000], owned: false, purchasePrice: null},
+                    {id: 38, title: "마곡 힐스테이트", location: "서울시 강서구 마곡동", type: "아파트", basePrice: 32000, currentPrice: 32000, area: 74, rooms: 3, buildYear: 2020, lat: 37.5617, lng: 126.8255, priceHistory: [31000, 31400, 31700, 31850, 32000], owned: false, purchasePrice: null},
+                    {id: 39, title: "여의도 센트럴파크", location: "서울시 영등포구 여의도동", type: "아파트", basePrice: 38000, currentPrice: 38000, area: 79, rooms: 3, buildYear: 2019, lat: 37.5273, lng: 126.9248, priceHistory: [36800, 37200, 37600, 37800, 38000], owned: false, purchasePrice: null},
+                    {id: 40, title: "성북 e편한세상", location: "서울시 성북구 정릉동", type: "아파트", basePrice: 25000, currentPrice: 25000, area: 59, rooms: 3, buildYear: 2018, lat: 37.6101, lng: 127.0099, priceHistory: [24200, 24500, 24700, 24850, 25000], owned: false, purchasePrice: null},
+                    {id: 41, title: "광진 푸르지오", location: "서울시 광진구 자양동", type: "아파트", basePrice: 29500, currentPrice: 29500, area: 64, rooms: 3, buildYear: 2019, lat: 37.5345, lng: 127.0715, priceHistory: [28500, 28900, 29200, 29350, 29500], owned: false, purchasePrice: null},
+                    {id: 42, title: "도곡 타워팰리스", location: "서울시 강남구 도곡동", type: "아파트", basePrice: 42000, currentPrice: 42000, area: 84, rooms: 3, buildYear: 2020, lat: 37.4901, lng: 127.0544, priceHistory: [40600, 41000, 41500, 41750, 42000], owned: false, purchasePrice: null},
+                    {id: 43, title: "강동 고덕아이파크", location: "서울시 강동구 고덕동", type: "아파트", basePrice: 26500, currentPrice: 26500, area: 59, rooms: 3, buildYear: 2018, lat: 37.5543, lng: 127.1541, priceHistory: [25700, 26000, 26200, 26350, 26500], owned: false, purchasePrice: null},
+                    {id: 44, title: "상암 DMC아이파크", location: "서울시 마포구 상암동", type: "아파트", basePrice: 35000, currentPrice: 35000, area: 74, rooms: 3, buildYear: 2019, lat: 37.5791, lng: 126.8899, priceHistory: [33900, 34300, 34650, 34820, 35000], owned: false, purchasePrice: null},
+                    {id: 45, title: "서초 반포자이", location: "서울시 서초구 서초동", type: "아파트", basePrice: 39000, currentPrice: 39000, area: 79, rooms: 3, buildYear: 2020, lat: 37.4897, lng: 127.0063, priceHistory: [37800, 38200, 38600, 38800, 39000], owned: false, purchasePrice: null},
+
+                    // Luxury apartments (5억-20억) - 5개
+                    {id: 46, title: "압구정 현대아파트", location: "서울시 강남구 압구정동", type: "아파트", basePrice: 85000, currentPrice: 85000, area: 84, rooms: 3, buildYear: 2021, lat: 37.5270, lng: 127.0282, priceHistory: [82000, 83000, 84000, 84500, 85000], owned: false, purchasePrice: null},
+                    {id: 47, title: "판교테크노밸리 알파돔시티 2차", location: "경기도 성남시 분당구 삼평동", type: "아파트", basePrice: 85000, currentPrice: 85000, area: 84, rooms: 3, buildYear: 2021, lat: 37.4020, lng: 127.1080, priceHistory: [82000, 83000, 84000, 84500, 85000], owned: false, purchasePrice: null},
+                    {id: 48, title: "강남 도곡렉슬", location: "서울시 강남구 도곡동", type: "아파트", basePrice: 120000, currentPrice: 120000, area: 114, rooms: 4, buildYear: 2020, lat: 37.4883, lng: 127.0510, priceHistory: [116000, 117500, 118500, 119200, 120000], owned: false, purchasePrice: null},
+                    {id: 49, title: "잠실 엘스", location: "서울시 송파구 잠실동", type: "아파트", basePrice: 95000, currentPrice: 95000, area: 99, rooms: 4, buildYear: 2021, lat: 37.5133, lng: 127.0821, priceHistory: [92000, 93000, 94000, 94500, 95000], owned: false, purchasePrice: null},
+                    {id: 50, title: "한남더힐", location: "서울시 용산구 한남동", type: "아파트", basePrice: 180000, currentPrice: 180000, area: 244, rooms: 5, buildYear: 2020, lat: 37.5345, lng: 127.0036, priceHistory: [175000, 176500, 178000, 179000, 180000], owned: false, purchasePrice: null},
                 ];
             }
 
             loadUser() {
-                const saved = localStorage.getItem('user');
+                const saved = localStorage.getItem('user_v2');
                 if (saved) return JSON.parse(saved);
-
                 return {
                     balance: 100000000,
                     initialBalance: 100000000,
@@ -612,14 +730,14 @@
             }
 
             loadTransactions() {
-                const saved = localStorage.getItem('transactions');
+                const saved = localStorage.getItem('transactions_v2');
                 return saved ? JSON.parse(saved) : [];
             }
 
             save() {
-                localStorage.setItem('properties', JSON.stringify(this.properties));
-                localStorage.setItem('user', JSON.stringify(this.user));
-                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+                localStorage.setItem('properties_v2', JSON.stringify(this.properties));
+                localStorage.setItem('user_v2', JSON.stringify(this.user));
+                localStorage.setItem('transactions_v2', JSON.stringify(this.transactions));
             }
 
             buyProperty(propertyId) {
@@ -643,10 +761,8 @@
                     timestamp: Date.now()
                 });
 
-                this.updatePortfolioValue();
                 this.save();
-
-                return { success: true, message: '구매가 완료되었습니다!' };
+                return { success: true, message: '매수 완료!' };
             }
 
             sellProperty(propertyId) {
@@ -656,76 +772,69 @@
 
                 const price = property.currentPrice * 10000;
                 this.user.balance += price;
+
+                const profit = (property.currentPrice - property.purchasePrice) * 10000;
+                const profitPercent = ((property.currentPrice / property.purchasePrice - 1) * 100).toFixed(2);
+
                 property.owned = false;
+                property.purchasePrice = null;
 
                 this.transactions.push({
                     type: 'sell',
                     propertyId: propertyId,
                     price: property.currentPrice,
-                    profit: property.currentPrice - property.purchasePrice,
+                    profit: profit,
+                    profitPercent: profitPercent,
                     timestamp: Date.now()
                 });
 
-                property.purchasePrice = null;
-
-                this.updatePortfolioValue();
                 this.save();
-
-                return { success: true, message: '판매가 완료되었습니다!' };
+                return {
+                    success: true,
+                    message: `매도 완료! ${profit >= 0 ? '+' : ''}${(profit/10000).toFixed(0)}만원 (${profitPercent}%)`
+                };
             }
 
             updatePrices() {
                 const marketTrend = Math.random();
-                let trendText = '보통';
-
-                if (marketTrend > 0.7) trendText = '상승';
-                else if (marketTrend < 0.3) trendText = '하락';
-
-                document.getElementById('market-trend').textContent = trendText;
+                let upCount = 0;
+                let downCount = 0;
 
                 this.properties.forEach(property => {
-                    const change = (Math.random() - 0.5) * 1000;
+                    const volatility = property.basePrice > 50000 ? 500 : 100;
+                    const change = (Math.random() - 0.5) * volatility;
                     const newPrice = Math.round(property.currentPrice + change);
 
-                    property.currentPrice = Math.max(property.basePrice * 0.8, Math.min(property.basePrice * 1.3, newPrice));
+                    property.currentPrice = Math.max(
+                        property.basePrice * 0.8,
+                        Math.min(property.basePrice * 1.3, newPrice)
+                    );
 
-                    property.priceHistory.push(property.currentPrice);
-                    if (property.priceHistory.length > 20) {
+                    if (property.priceHistory.length >= 20) {
                         property.priceHistory.shift();
                     }
+                    property.priceHistory.push(property.currentPrice);
+
+                    if (change > 0) upCount++;
+                    else if (change < 0) downCount++;
                 });
 
-                this.updatePortfolioValue();
                 this.save();
-            }
 
-            updatePortfolioValue() {
-                let portfolioValue = 0;
-                this.properties.forEach(p => {
-                    if (p.owned) {
-                        portfolioValue += p.currentPrice * 10000;
-                    }
-                });
-                this.user.portfolioValue = portfolioValue;
+                // Update market indicator
+                const marketDot = document.getElementById('marketDot');
+                const marketStatus = document.getElementById('marketStatus');
 
-                const totalAssets = this.user.balance + portfolioValue;
-                const profit = totalAssets - this.user.initialBalance;
-                const profitRate = (profit / this.user.initialBalance * 100).toFixed(2);
-
-                document.getElementById('balance').textContent = `${totalAssets.toLocaleString()}원`;
-
-                const profitEl = document.getElementById('total-profit');
-                if (profit >= 0) {
-                    profitEl.textContent = `수익률 +${profitRate}%`;
-                    profitEl.className = 'profit positive';
+                if (upCount > downCount * 1.5) {
+                    marketDot.className = 'market-dot up';
+                    marketStatus.textContent = '시장 상승';
+                } else if (downCount > upCount * 1.5) {
+                    marketDot.className = 'market-dot down';
+                    marketStatus.textContent = '시장 하락';
                 } else {
-                    profitEl.textContent = `수익률 ${profitRate}%`;
-                    profitEl.className = 'profit negative';
+                    marketDot.className = 'market-dot stable';
+                    marketStatus.textContent = '시장 보통';
                 }
-            }
-
-            getOwnedProperties() {
-                return this.properties.filter(p => p.owned);
             }
 
             startPriceUpdates() {
@@ -734,7 +843,7 @@
                     updateMap();
                     updatePortfolio();
                     if (currentProperty) {
-                        showPropertyDetails(currentProperty.id);
+                        updatePriceChart();
                     }
                 }, 3000);
             }
@@ -746,23 +855,18 @@
             }
         }
 
-        // Initialize
-        const db = new PropertyDatabase();
-        let map = null;
-        let markers = [];
-        let currentProperty = null;
-        let currentFilter = 'all';
-
         function initMap() {
-            map = L.map('map').setView([37.4979, 127.0622], 11);
+            map = L.map('map').setView([37.5665, 126.9780], 11);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
+            db = new PropertyDatabase();
             updateMap();
             db.startPriceUpdates();
             updatePortfolio();
+            updateBalance();
         }
 
         function updateMap() {
@@ -770,16 +874,29 @@
             markers = [];
 
             let properties = db.properties;
-            if (currentFilter === 'owned') {
+
+            // Apply filter
+            if (db.currentFilter === 'owned') {
                 properties = properties.filter(p => p.owned);
-            } else if (currentFilter === 'for-sale') {
+            } else if (db.currentFilter === 'for-sale') {
                 properties = properties.filter(p => !p.owned);
+            } else if (db.currentFilter === 'affordable') {
+                properties = properties.filter(p => p.currentPrice <= 10000);
             }
 
             properties.forEach(property => {
+                let markerClass = 'custom-marker';
+                if (property.owned) {
+                    markerClass += ' owned';
+                } else if (property.currentPrice <= 10000) {
+                    markerClass += ' affordable';
+                }
+
                 const icon = L.divIcon({
                     className: 'custom-icon',
-                    html: `<div class="custom-marker ${property.owned ? 'owned' : 'for-sale'}">${(property.currentPrice / 10000).toFixed(1)}억</div>`,
+                    html: `<div class="${markerClass}">
+                            ${(property.currentPrice / 10000).toFixed(1)}억
+                           </div>`,
                     iconSize: [80, 40]
                 });
 
@@ -791,111 +908,40 @@
             });
         }
 
-        function filterProperties(filter) {
-            currentFilter = filter;
-            updateMap();
-        }
-
         function showPropertyDetails(propertyId) {
             const property = db.properties.find(p => p.id === propertyId);
             if (!property) return;
 
             currentProperty = property;
 
-            const profit = property.owned ? property.currentPrice - property.purchasePrice : 0;
-            const profitRate = property.owned ? ((profit / property.purchasePrice) * 100).toFixed(2) : 0;
+            document.getElementById('propertyTitle').textContent = property.title;
+            document.getElementById('propertyLocation').textContent = property.location;
+            document.getElementById('propertyPrice').textContent = `${(property.currentPrice / 10000).toFixed(2)}억`;
+            document.getElementById('propertyArea').textContent = `${property.area}㎡`;
+            document.getElementById('propertyRooms').textContent = `${property.rooms}개`;
+            document.getElementById('propertyType').textContent = property.type;
+            document.getElementById('propertyYear').textContent = property.buildYear;
 
-            const content = `
-                <img src="${property.image}" alt="${property.title}" class="property-image">
-                <div class="property-price">${(property.currentPrice / 10000).toFixed(2)}억원</div>
-                <div class="property-title">${property.title}</div>
-                <div class="property-location">📍 ${property.location}</div>
+            const actionButtons = document.getElementById('actionButtons');
+            if (property.owned) {
+                const profit = (property.currentPrice - property.purchasePrice) * 10000;
+                const profitPercent = ((property.currentPrice / property.purchasePrice - 1) * 100).toFixed(2);
 
-                <div class="property-stats">
-                    <div class="stat-item">
-                        <div class="stat-label">전용면적</div>
-                        <div class="stat-value">${property.area}㎡</div>
+                actionButtons.innerHTML = `
+                    <button class="btn btn-danger" onclick="sellProperty()">매도하기</button>
+                    <div style="width: 100%; text-align: center; margin-top: 12px; font-size: 13px; font-weight: 600; color: ${profit >= 0 ? 'var(--sf-red)' : 'var(--sf-blue)'};">
+                        수익: ${profit >= 0 ? '+' : ''}${(profit/10000).toFixed(0)}만원 (${profitPercent}%)
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">방 개수</div>
-                        <div class="stat-value">${property.rooms}개</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">건축년도</div>
-                        <div class="stat-value">${property.buildYear}년</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">상태</div>
-                        <div class="stat-value">${property.owned ? '보유중' : '매물'}</div>
-                    </div>
-                </div>
+                `;
+            } else {
+                actionButtons.innerHTML = `
+                    <button class="btn btn-primary" onclick="buyProperty()">매수하기</button>
+                `;
+            }
 
-                ${property.owned ? `
-                    <div class="property-stats">
-                        <div class="stat-item">
-                            <div class="stat-label">매입가</div>
-                            <div class="stat-value">${(property.purchasePrice / 10000).toFixed(2)}억원</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">수익</div>
-                            <div class="stat-value" style="color: ${profit >= 0 ? 'var(--danger)' : 'var(--primary)'}">
-                                ${profit >= 0 ? '+' : ''}${(profit / 10000).toFixed(2)}억 (${profitRate}%)
-                            </div>
-                        </div>
-                    </div>
-                ` : ''}
+            updatePriceChart();
 
-                <div class="price-history">
-                    <div class="history-title">가격 추이</div>
-                    <div class="chart-container">
-                        <canvas id="price-chart"></canvas>
-                    </div>
-                </div>
-
-                <div class="action-buttons">
-                    ${property.owned ?
-                        `<button class="btn btn-sell" onclick="sellProperty(${property.id})">매도하기</button>` :
-                        `<button class="btn btn-buy" onclick="buyProperty(${property.id})">매수하기</button>`
-                    }
-                </div>
-            `;
-
-            document.getElementById('sidebar-content').innerHTML = content;
             document.getElementById('sidebar').classList.add('active');
-
-            setTimeout(() => {
-                const ctx = document.getElementById('price-chart');
-                if (ctx) {
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: property.priceHistory.map((_, i) => ''),
-                            datasets: [{
-                                label: '시세',
-                                data: property.priceHistory,
-                                borderColor: '#0066FF',
-                                backgroundColor: 'rgba(0, 102, 255, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                y: {
-                                    ticks: {
-                                        callback: function(value) {
-                                            return (value / 10000).toFixed(1) + '억';
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-            }, 100);
         }
 
         function closeSidebar() {
@@ -903,50 +949,138 @@
             currentProperty = null;
         }
 
-        function buyProperty(propertyId) {
-            const result = db.buyProperty(propertyId);
-            showToast(result.message, result.success ? 'success' : 'error');
+        function updatePriceChart() {
+            if (!currentProperty) return;
 
-            if (result.success) {
-                updateMap();
-                updatePortfolio();
-                closeSidebar();
+            const ctx = document.getElementById('priceChart').getContext('2d');
+
+            if (priceChart) {
+                // Smooth update without flickering
+                priceChart.data.labels = currentProperty.priceHistory.map((_, i) => `${i + 1}`);
+                priceChart.data.datasets[0].data = currentProperty.priceHistory;
+                priceChart.update('none'); // 'none' mode = no animation
+            } else {
+                priceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: currentProperty.priceHistory.map((_, i) => `${i + 1}`),
+                        datasets: [{
+                            label: '시세 (만원)',
+                            data: currentProperty.priceHistory,
+                            borderColor: 'rgba(0, 122, 255, 1)',
+                            backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0 // No animation = no flickering
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(29, 29, 31, 0.9)',
+                                padding: 12,
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: 'rgba(255, 255, 255, 0.2)',
+                                borderWidth: 1,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.parsed.y.toLocaleString()}만원`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    font: { size: 11 }
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                }
+                            },
+                            x: {
+                                display: false
+                            }
+                        }
+                    }
+                });
             }
         }
 
-        function sellProperty(propertyId) {
-            const result = db.sellProperty(propertyId);
-            showToast(result.message, result.success ? 'success' : 'error');
+        function buyProperty() {
+            if (!currentProperty) return;
+
+            const result = db.buyProperty(currentProperty.id);
+            showToast(result.message);
 
             if (result.success) {
+                showPropertyDetails(currentProperty.id);
                 updateMap();
                 updatePortfolio();
-                closeSidebar();
+                updateBalance();
             }
+        }
+
+        function sellProperty() {
+            if (!currentProperty) return;
+
+            const result = db.sellProperty(currentProperty.id);
+            showToast(result.message);
+
+            if (result.success) {
+                closeSidebar();
+                updateMap();
+                updatePortfolio();
+                updateBalance();
+            }
+        }
+
+        function updateBalance() {
+            const balance = db.user.balance;
+            document.getElementById('balance').textContent = `${(balance / 10000).toLocaleString()}만원`;
+
+            const ownedProperties = db.properties.filter(p => p.owned);
+            const portfolioValue = ownedProperties.reduce((sum, p) => sum + (p.currentPrice * 10000), 0);
+            const totalAssets = balance + portfolioValue;
+            const totalProfit = totalAssets - db.user.initialBalance;
+            const profitPercent = ((totalAssets / db.user.initialBalance - 1) * 100).toFixed(2);
+
+            const profitEl = document.getElementById('totalProfit');
+            profitEl.textContent = `${totalProfit >= 0 ? '+' : ''}${(totalProfit / 10000).toLocaleString()}만원 (${profitPercent}%)`;
+            profitEl.className = `profit ${totalProfit >= 0 ? 'positive' : 'negative'}`;
         }
 
         function updatePortfolio() {
-            const owned = db.getOwnedProperties();
-            document.getElementById('portfolio-count').textContent = owned.length;
+            const ownedProperties = db.properties.filter(p => p.owned);
+            document.getElementById('ownedCount').textContent = ownedProperties.length;
 
-            const list = document.getElementById('portfolio-list');
-            if (owned.length === 0) {
-                list.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">보유한 매물이 없습니다</div>';
-                return;
-            }
+            const portfolioValue = ownedProperties.reduce((sum, p) => sum + (p.currentPrice * 10000), 0);
+            const totalAssets = db.user.balance + portfolioValue;
+            document.getElementById('totalAssets').textContent = `${(totalAssets / 100000000).toFixed(2)}억`;
 
-            list.innerHTML = owned.map(property => {
-                const profit = property.currentPrice - property.purchasePrice;
-                const profitRate = ((profit / property.purchasePrice) * 100).toFixed(2);
+            const listEl = document.getElementById('propertyList');
+            listEl.innerHTML = ownedProperties.map(p => {
+                const profit = (p.currentPrice - p.purchasePrice) * 10000;
+                const profitPercent = ((p.currentPrice / p.purchasePrice - 1) * 100).toFixed(1);
 
                 return `
-                    <div class="portfolio-item" onclick="showPropertyDetails(${property.id})">
-                        <div class="portfolio-item-title">${property.title}</div>
-                        <div class="portfolio-item-info">
-                            <span>${(property.currentPrice / 10000).toFixed(2)}억원</span>
-                            <span class="portfolio-profit" style="color: ${profit >= 0 ? 'var(--danger)' : 'var(--primary)'}">
-                                ${profit >= 0 ? '+' : ''}${profitRate}%
-                            </span>
+                    <div class="property-item" onclick="showPropertyDetails(${p.id})">
+                        <div class="property-item-title">${p.title}</div>
+                        <div class="property-item-price">
+                            ${(p.currentPrice / 10000).toFixed(2)}억
+                            (${profit >= 0 ? '+' : ''}${profitPercent}%)
                         </div>
                     </div>
                 `;
@@ -954,36 +1088,41 @@
         }
 
         function togglePortfolio() {
-            const content = document.getElementById('portfolio-list');
-            const btn = document.querySelector('.toggle-btn');
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                btn.textContent = '▼';
-            } else {
-                content.style.display = 'none';
-                btn.textContent = '▲';
-            }
+            const list = document.getElementById('propertyList');
+            list.classList.toggle('expanded');
+
+            const btn = event.target;
+            btn.textContent = list.classList.contains('expanded') ? '▲' : '▼';
         }
 
-        function showToast(message, type = 'success') {
+        function filterProperties(filter) {
+            db.currentFilter = filter;
+
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            updateMap();
+        }
+
+        function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.className = `toast ${type}`;
             toast.classList.add('show');
 
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 3000);
+            }, 2000);
         }
 
-        // Initialize on load
-        window.addEventListener('load', () => {
-            initMap();
-        });
+        // Initialize
+        window.addEventListener('load', initMap);
 
         // Cleanup on unload
         window.addEventListener('beforeunload', () => {
-            db.stopPriceUpdates();
+            if (db) db.stopPriceUpdates();
         });
     </script>
 </body>
