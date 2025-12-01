@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>부동산114 - 대한민국 NO.1 부동산 플랫폼</title>
+    <title>부동산24 - 실시간 부동산 거래 플랫폼</title>
 
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
         * {
@@ -23,1256 +18,973 @@
 
         :root {
             --primary: #0066FF;
-            --secondary: #00C73C;
-            --accent: #FF6B00;
+            --success: #00C73C;
+            --danger: #FF3B30;
+            --warning: #FF9500;
             --bg: #F8F9FA;
-            --text: #1a1a1a;
-            --border: #E5E5E5;
-            --shadow: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            overflow: hidden;
         }
 
         /* Header */
         .header {
-            background: white;
-            box-shadow: var(--shadow);
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
             z-index: 1000;
         }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .balance {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .balance-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .balance-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .profit {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .profit.positive { color: var(--danger); }
+        .profit.negative { color: var(--primary); }
+
+        /* Map Container */
+        #map {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            width: 400px;
+            height: calc(100vh - 60px);
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #E5E5E5;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .nav {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0052CC;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: white;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-icon {
-            background: transparent;
+        .close-btn {
+            background: none;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            position: relative;
         }
 
-        .badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #FF3B30;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Search Section */
-        .search-section {
-            background: linear-gradient(135deg, var(--primary), #0052CC);
-            padding: 4rem 2rem;
-            color: white;
-            text-align: center;
-        }
-
-        .search-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .search-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-
-        .search-box {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            gap: 1rem;
-            background: white;
-            padding: 0.5rem;
-            border-radius: 12px;
-        }
-
-        .search-input {
-            flex: 1;
-            border: none;
-            padding: 1rem;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .btn-search {
-            background: var(--primary);
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-filter {
-            background: white;
-            color: var(--text);
-            padding: 1rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Property Grid */
-        .property-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .property-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .property-card:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-4px);
+        .sidebar-content {
+            padding: 1.5rem;
         }
 
         .property-image {
             width: 100%;
-            height: 220px;
+            height: 200px;
             object-fit: cover;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
-        .verified-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: var(--secondary);
-            color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .favorite-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow);
-        }
-
-        .property-info {
-            padding: 1.5rem;
+        .property-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
         }
 
         .property-title {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
         .property-location {
             color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .property-price {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .property-features {
-            display: flex;
-            gap: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 2000;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            max-width: 1000px;
-            width: 100%;
-            margin: 2rem auto;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: var(--shadow);
-        }
-
-        .modal-gallery {
-            position: relative;
-            height: 400px;
-            background: #f0f0f0;
-        }
-
-        .modal-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .gallery-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.9);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-        }
-
-        .gallery-prev { left: 1rem; }
-        .gallery-next { right: 1rem; }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .modal-header {
-            margin-bottom: 2rem;
-        }
-
-        .modal-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .modal-price {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .modal-tabs {
-            display: flex;
-            gap: 1rem;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 2rem;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 1rem 1.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .detail-item {
-            padding: 1.5rem;
-            background: var(--bg);
-            border-radius: 8px;
-        }
-
-        .detail-label {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .detail-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        /* Document Verification */
-        .document {
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-
-        .document-header {
-            text-align: center;
-            border-bottom: 2px solid var(--text);
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .document-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-
-        .document-row {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .document-label {
-            font-weight: 600;
-        }
-
-        /* Map */
-        #map {
-            width: 100%;
-            height: 400px;
-            border-radius: 12px;
-            margin: 2rem 0;
-        }
-
-        /* Calculator */
-        .calculator {
-            background: var(--bg);
-            padding: 2rem;
-            border-radius: 12px;
-            margin: 2rem 0;
-        }
-
-        .calc-input-group {
             margin-bottom: 1.5rem;
         }
 
-        .calc-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+        .property-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .calc-input {
-            width: 100%;
+        .stat-item {
             padding: 1rem;
-            border: 2px solid var(--border);
+            background: var(--bg);
             border-radius: 8px;
-            font-size: 1rem;
         }
 
-        .calc-result {
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .price-history {
+            margin: 1.5rem 0;
+        }
+
+        .history-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-buy {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-buy:hover {
+            background: #CC0000;
+            transform: translateY(-2px);
+        }
+
+        .btn-sell {
             background: var(--primary);
             color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-top: 2rem;
         }
 
-        .calc-result-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
+        .btn-sell:hover {
+            background: #0052CC;
+            transform: translateY(-2px);
         }
 
-        /* Chart Container */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin: 2rem 0;
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        /* Comparison Tool */
-        .comparison-bar {
+        /* Portfolio Panel */
+        .portfolio-panel {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 20px;
+            left: 20px;
+            width: 350px;
             background: white;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-            padding: 1rem 2rem;
-            transform: translateY(100%);
-            transition: all 0.3s;
-            z-index: 1500;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            z-index: 100;
         }
 
-        .comparison-bar.active {
-            transform: translateY(0);
-        }
-
-        .comparison-content {
-            max-width: 1400px;
-            margin: 0 auto;
+        .panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E5E5E5;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .comparison-items {
-            display: flex;
-            gap: 1rem;
+        .panel-title {
+            font-weight: 700;
         }
 
-        .comparison-item {
-            padding: 0.5rem 1rem;
-            background: var(--bg);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .remove-comparison {
+        .toggle-btn {
             background: none;
             border: none;
+            font-size: 1.25rem;
             cursor: pointer;
-            font-size: 1.2rem;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .search-box {
-                flex-direction: column;
-            }
+        .panel-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
-            .property-grid {
-                grid-template-columns: 1fr;
-            }
+        .portfolio-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E5E5E5;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
 
-            .nav {
-                display: none;
-            }
+        .portfolio-item:hover {
+            background: var(--bg);
+        }
+
+        .portfolio-item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .portfolio-item-info {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .portfolio-profit {
+            font-weight: 700;
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+
+        .map-control-btn {
+            background: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .map-control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateX(500px);
+            transition: transform 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Market Status */
+        .market-status {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 100;
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .status-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Leaflet Custom Marker */
+        .custom-marker {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-weight: 700;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .custom-marker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .custom-marker.owned {
+            background: var(--primary);
+            color: white;
+        }
+
+        .custom-marker.for-sale {
+            background: white;
+            color: var(--primary);
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="#" class="logo">부동산114</a>
-            <nav class="nav">
-                <a href="#" class="nav-link">매물</a>
-                <a href="#" class="nav-link">지도</a>
-                <a href="#" class="nav-link">시세</a>
-                <a href="#" class="nav-link">계산기</a>
-            </nav>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <button class="btn-icon" id="favorites-btn">
-                    ❤️
-                    <span class="badge" id="favorites-count">0</span>
-                </button>
-                <button class="btn-icon" id="comparison-btn">
-                    📊
-                    <span class="badge" id="comparison-count">0</span>
-                </button>
-                <button class="btn btn-primary">로그인</button>
+    <div class="header">
+        <div class="logo">부동산24</div>
+        <div class="user-info">
+            <div class="balance">
+                <div class="balance-label">보유자산</div>
+                <div class="balance-amount" id="balance">100,000,000원</div>
+                <div class="profit" id="total-profit">수익률 +0%</div>
             </div>
-        </div>
-    </header>
-
-    <!-- Search Section -->
-    <section class="search-section">
-        <h1 class="search-title">나에게 딱 맞는 집 찾기</h1>
-        <p class="search-subtitle">서울 강남, 판교 등 인기 지역 30,000+ 매물</p>
-        <div class="search-box">
-            <input type="text" class="search-input" id="search-input" placeholder="지역, 지하철역 검색 (예: 강남역, 판교역, 홍대입구)">
-            <button class="btn-filter" id="filter-btn">⚙️ 필터</button>
-            <button class="btn-search" id="search-btn">검색</button>
-        </div>
-    </section>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Stats -->
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="total-count">0</div>
-                <div class="stat-label">전체 매물</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">98.5%</div>
-                <div class="stat-label">검증 완료율</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">2.3일</div>
-                <div class="stat-label">평균 계약 소요시간</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">15,234</div>
-                <div class="stat-label">이번 달 거래 완료</div>
-            </div>
-        </div>
-
-        <!-- Property Grid -->
-        <div class="property-grid" id="property-grid"></div>
-    </div>
-
-    <!-- Property Modal -->
-    <div class="modal" id="property-modal">
-        <div class="modal-content">
-            <button class="modal-close" id="modal-close">✕</button>
-            <div id="modal-body"></div>
         </div>
     </div>
 
-    <!-- Comparison Bar -->
-    <div class="comparison-bar" id="comparison-bar">
-        <div class="comparison-content">
-            <div class="comparison-items" id="comparison-items"></div>
-            <button class="btn btn-primary" id="compare-btn">비교하기</button>
-        </div>
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <button class="map-control-btn" onclick="filterProperties('all')" title="전체">🏘️</button>
+        <button class="map-control-btn" onclick="filterProperties('owned')" title="보유중">🏠</button>
+        <button class="map-control-btn" onclick="filterProperties('for-sale')" title="매물">💰</button>
     </div>
+
+    <!-- Market Status -->
+    <div class="market-status">
+        <div class="status-label">시장 상태</div>
+        <div class="status-value" id="market-trend">보통</div>
+    </div>
+
+    <!-- Portfolio Panel -->
+    <div class="portfolio-panel">
+        <div class="panel-header">
+            <div class="panel-title">보유 매물 (<span id="portfolio-count">0</span>)</div>
+            <button class="toggle-btn" onclick="togglePortfolio()">▼</button>
+        </div>
+        <div class="panel-content" id="portfolio-list"></div>
+    </div>
+
+    <!-- Property Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>매물 상세</h2>
+            <button class="close-btn" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-content" id="sidebar-content"></div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
     <script>
-        // Property Data
-        const properties = [
-            {
-                id: 1,
-                title: "판교테크노밸리 신축 오피스텔",
-                location: "경기도 성남시 분당구 삼평동",
-                price: "2억 5천",
-                monthlyRent: "100만원",
-                type: "월세",
-                area: 42,
-                rooms: 1,
-                bathrooms: 1,
-                floor: 12,
-                totalFloors: 25,
-                buildYear: 2024,
-                verified: true,
-                images: [
-                    "https://picsum.photos/seed/pangyo1/800/600",
-                    "https://picsum.photos/seed/pangyo2/800/600",
-                    "https://picsum.photos/seed/pangyo3/800/600"
-                ],
-                lat: 37.4020,
-                lng: 127.1080,
-                description: "판교테크노밸리 도보 3분, 신분당선 판교역 5분 거리의 신축 오피스텔입니다. 풀옵션, 주차 가능.",
-                options: ["에어컨", "냉장고", "세탁기", "인덕션", "전자도어락", "주차", "엘리베이터", "CCTV"],
-                agent: { name: "김부동산", phone: "010-1234-5678", company: "판교공인중개사" },
-                priceHistory: [230, 235, 240, 245, 250]
-            },
-            {
-                id: 2,
-                title: "강남역 초역세권 투룸",
-                location: "서울시 강남구 역삼동",
-                price: "5억",
-                monthlyRent: "150만원",
-                type: "월세",
-                area: 55,
-                rooms: 2,
-                bathrooms: 1,
-                floor: 8,
-                totalFloors: 20,
-                buildYear: 2022,
-                verified: true,
-                images: [
-                    "https://picsum.photos/seed/gangnam1/800/600",
-                    "https://picsum.photos/seed/gangnam2/800/600"
-                ],
-                lat: 37.4979,
-                lng: 127.0276,
-                description: "강남역 도보 2분 거리, 분리형 투룸 오피스텔입니다.",
-                options: ["에어컨", "냉장고", "세탁기", "가스레인지", "붙박이장", "주차"],
-                agent: { name: "이중개사", phone: "010-2345-6789", company: "강남부동산" },
-                priceHistory: [480, 485, 490, 495, 500]
-            },
-            {
-                id: 3,
-                title: "홍대입구 신축 원룸",
-                location: "서울시 마포구 서교동",
-                price: "1000만원",
-                monthlyRent: "70만원",
-                type: "월세",
-                area: 33,
-                rooms: 1,
-                bathrooms: 1,
-                floor: 5,
-                totalFloors: 12,
-                buildYear: 2024,
-                verified: true,
-                images: [
-                    "https://picsum.photos/seed/hongdae1/800/600",
-                    "https://picsum.photos/seed/hongdae2/800/600"
-                ],
-                lat: 37.5565,
-                lng: 126.9236,
-                description: "홍대입구역 5분 거리 신축 원룸입니다.",
-                options: ["에어컨", "냉장고", "세탁기", "인덕션", "전자도어락"],
-                agent: { name: "박공인", phone: "010-3456-7890", company: "홍대부동산" },
-                priceHistory: [60, 62, 65, 68, 70]
-            },
-            {
-                id: 4,
-                title: "서초동 래미안 아파트",
-                location: "서울시 서초구 서초동",
-                price: "15억",
-                monthlyRent: null,
-                type: "매매",
-                area: 84,
-                rooms: 3,
-                bathrooms: 2,
-                floor: 15,
-                totalFloors: 25,
-                buildYear: 2020,
-                verified: true,
-                images: [
-                    "https://picsum.photos/seed/seocho1/800/600",
-                    "https://picsum.photos/seed/seocho2/800/600"
-                ],
-                lat: 37.4837,
-                lng: 127.0324,
-                description: "서초동 래미안 아파트 84㎡ 매매입니다.",
-                options: ["에어컨", "붙박이장", "주차", "엘리베이터", "놀이터", "헬스장"],
-                agent: { name: "최부동산", phone: "010-4567-8901", company: "서초공인중개사" },
-                priceHistory: [1400, 1420, 1450, 1480, 1500]
-            },
-            {
-                id: 5,
-                title: "판교 현대아파트 넓은 평수",
-                location: "경기도 성남시 분당구 백현동",
-                price: "12억",
-                monthlyRent: null,
-                type: "매매",
-                area: 102,
-                rooms: 4,
-                bathrooms: 2,
-                floor: 10,
-                totalFloors: 20,
-                buildYear: 2018,
-                verified: true,
-                images: [
-                    "https://picsum.photos/seed/pangyo-apt1/800/600",
-                    "https://picsum.photos/seed/pangyo-apt2/800/600"
-                ],
-                lat: 37.3944,
-                lng: 127.1116,
-                description: "판교신도시 현대아파트 넓은 4룸입니다. 학군 좋고 교통 편리합니다.",
-                options: ["에어컨", "붙박이장", "주차2대", "엘리베이터", "놀이터", "헬스장", "사우나"],
-                agent: { name: "정공인", phone: "010-5678-9012", company: "판교프라임공인" },
-                priceHistory: [1150, 1170, 1180, 1190, 1200]
-            },
-            {
-                id: 6,
-                title: "송파 잠실 신축 오피스텔",
-                location: "서울시 송파구 잠실동",
-                price: "3000만원",
-                monthlyRent: "120만원",
-                type: "월세",
-                area: 38,
-                rooms: 1,
-                bathrooms: 1,
-                floor: 18,
-                totalFloors: 30,
-                buildYear: 2024,
-                verified: true,
-                images: [
-                    "https://picsum.photos/seed/jamsil1/800/600"
-                ],
-                lat: 37.5133,
-                lng: 127.1000,
-                description: "잠실역 도보 5분, 롯데월드타워 전망 신축 오피스텔입니다.",
-                options: ["에어컨", "냉장고", "세탁기", "인덕션", "주차", "피트니스"],
-                agent: { name: "윤중개사", phone: "010-6789-0123", company: "송파부동산" },
-                priceHistory: [110, 112, 115, 118, 120]
+        // Database
+        class PropertyDatabase {
+            constructor() {
+                this.properties = this.loadProperties();
+                this.user = this.loadUser();
+                this.transactions = this.loadTransactions();
+                this.priceUpdateInterval = null;
             }
-        ];
 
-        // App State
-        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-        let comparisonList = JSON.parse(localStorage.getItem('comparisonList') || '[]');
-        let currentProperty = null;
-        let currentImageIndex = 0;
+            loadProperties() {
+                const saved = localStorage.getItem('properties');
+                if (saved) return JSON.parse(saved);
+
+                return [
+                    {
+                        id: 1,
+                        title: "판교테크노밸리 알파돔시티 2차",
+                        location: "경기도 성남시 분당구 삼평동",
+                        basePrice: 85000,
+                        currentPrice: 85000,
+                        area: 84,
+                        rooms: 3,
+                        buildYear: 2021,
+                        lat: 37.4020,
+                        lng: 127.1080,
+                        image: "https://picsum.photos/seed/pangyo1/800/600",
+                        priceHistory: [82000, 83000, 84000, 84500, 85000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 2,
+                        title: "판교 현대아이파크",
+                        location: "경기도 성남시 분당구 백현동",
+                        basePrice: 120000,
+                        currentPrice: 120000,
+                        area: 102,
+                        rooms: 4,
+                        buildYear: 2018,
+                        lat: 37.3944,
+                        lng: 127.1116,
+                        image: "https://picsum.photos/seed/pangyo2/800/600",
+                        priceHistory: [115000, 116000, 117500, 119000, 120000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 3,
+                        title: "강남 래미안대치팰리스",
+                        location: "서울시 강남구 대치동",
+                        basePrice: 195000,
+                        currentPrice: 195000,
+                        area: 84,
+                        rooms: 3,
+                        buildYear: 2020,
+                        lat: 37.4979,
+                        lng: 127.0622,
+                        image: "https://picsum.photos/seed/gangnam1/800/600",
+                        priceHistory: [188000, 190000, 192000, 193500, 195000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 4,
+                        title: "서초 아크로리버파크",
+                        location: "서울시 서초구 반포동",
+                        basePrice: 175000,
+                        currentPrice: 175000,
+                        area: 84,
+                        rooms: 3,
+                        buildYear: 2020,
+                        lat: 37.5033,
+                        lng: 127.0036,
+                        image: "https://picsum.photos/seed/seocho1/800/600",
+                        priceHistory: [168000, 170000, 172000, 173500, 175000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 5,
+                        title: "송파 헬리오시티",
+                        location: "서울시 송파구 거여동",
+                        basePrice: 98000,
+                        currentPrice: 98000,
+                        area: 84,
+                        rooms: 3,
+                        buildYear: 2021,
+                        lat: 37.4933,
+                        lng: 127.1450,
+                        image: "https://picsum.photos/seed/songpa1/800/600",
+                        priceHistory: [93000, 94500, 96000, 97000, 98000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 6,
+                        title: "마포 아크로리버뷰",
+                        location: "서울시 마포구 서교동",
+                        basePrice: 125000,
+                        currentPrice: 125000,
+                        area: 84,
+                        rooms: 3,
+                        buildYear: 2019,
+                        lat: 37.5565,
+                        lng: 126.9236,
+                        image: "https://picsum.photos/seed/mapo1/800/600",
+                        priceHistory: [118000, 120000, 122000, 123500, 125000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 7,
+                        title: "잠실 엘스",
+                        location: "서울시 송파구 잠실동",
+                        basePrice: 168000,
+                        currentPrice: 168000,
+                        area: 84,
+                        rooms: 3,
+                        buildYear: 2017,
+                        lat: 37.5133,
+                        lng: 127.1000,
+                        image: "https://picsum.photos/seed/jamsil1/800/600",
+                        priceHistory: [160000, 162000, 164500, 166000, 168000],
+                        owned: false,
+                        purchasePrice: null
+                    },
+                    {
+                        id: 8,
+                        title: "용산 아이파크",
+                        location: "서울시 용산구 한강로3가",
+                        basePrice: 210000,
+                        currentPrice: 210000,
+                        area: 114,
+                        rooms: 4,
+                        buildYear: 2011,
+                        lat: 37.5311,
+                        lng: 126.9658,
+                        image: "https://picsum.photos/seed/yongsan1/800/600",
+                        priceHistory: [200000, 203000, 206000, 208000, 210000],
+                        owned: false,
+                        purchasePrice: null
+                    }
+                ];
+            }
+
+            loadUser() {
+                const saved = localStorage.getItem('user');
+                if (saved) return JSON.parse(saved);
+
+                return {
+                    balance: 100000000,
+                    initialBalance: 100000000,
+                    portfolioValue: 0
+                };
+            }
+
+            loadTransactions() {
+                const saved = localStorage.getItem('transactions');
+                return saved ? JSON.parse(saved) : [];
+            }
+
+            save() {
+                localStorage.setItem('properties', JSON.stringify(this.properties));
+                localStorage.setItem('user', JSON.stringify(this.user));
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            }
+
+            buyProperty(propertyId) {
+                const property = this.properties.find(p => p.id === propertyId);
+                if (!property) return { success: false, message: '매물을 찾을 수 없습니다.' };
+                if (property.owned) return { success: false, message: '이미 보유중인 매물입니다.' };
+
+                const price = property.currentPrice * 10000;
+                if (this.user.balance < price) {
+                    return { success: false, message: '잔액이 부족합니다.' };
+                }
+
+                this.user.balance -= price;
+                property.owned = true;
+                property.purchasePrice = property.currentPrice;
+
+                this.transactions.push({
+                    type: 'buy',
+                    propertyId: propertyId,
+                    price: property.currentPrice,
+                    timestamp: Date.now()
+                });
+
+                this.updatePortfolioValue();
+                this.save();
+
+                return { success: true, message: '구매가 완료되었습니다!' };
+            }
+
+            sellProperty(propertyId) {
+                const property = this.properties.find(p => p.id === propertyId);
+                if (!property) return { success: false, message: '매물을 찾을 수 없습니다.' };
+                if (!property.owned) return { success: false, message: '보유하지 않은 매물입니다.' };
+
+                const price = property.currentPrice * 10000;
+                this.user.balance += price;
+                property.owned = false;
+
+                this.transactions.push({
+                    type: 'sell',
+                    propertyId: propertyId,
+                    price: property.currentPrice,
+                    profit: property.currentPrice - property.purchasePrice,
+                    timestamp: Date.now()
+                });
+
+                property.purchasePrice = null;
+
+                this.updatePortfolioValue();
+                this.save();
+
+                return { success: true, message: '판매가 완료되었습니다!' };
+            }
+
+            updatePrices() {
+                const marketTrend = Math.random();
+                let trendText = '보통';
+
+                if (marketTrend > 0.7) trendText = '상승';
+                else if (marketTrend < 0.3) trendText = '하락';
+
+                document.getElementById('market-trend').textContent = trendText;
+
+                this.properties.forEach(property => {
+                    const change = (Math.random() - 0.5) * 1000;
+                    const newPrice = Math.round(property.currentPrice + change);
+
+                    property.currentPrice = Math.max(property.basePrice * 0.8, Math.min(property.basePrice * 1.3, newPrice));
+
+                    property.priceHistory.push(property.currentPrice);
+                    if (property.priceHistory.length > 20) {
+                        property.priceHistory.shift();
+                    }
+                });
+
+                this.updatePortfolioValue();
+                this.save();
+            }
+
+            updatePortfolioValue() {
+                let portfolioValue = 0;
+                this.properties.forEach(p => {
+                    if (p.owned) {
+                        portfolioValue += p.currentPrice * 10000;
+                    }
+                });
+                this.user.portfolioValue = portfolioValue;
+
+                const totalAssets = this.user.balance + portfolioValue;
+                const profit = totalAssets - this.user.initialBalance;
+                const profitRate = (profit / this.user.initialBalance * 100).toFixed(2);
+
+                document.getElementById('balance').textContent = `${totalAssets.toLocaleString()}원`;
+
+                const profitEl = document.getElementById('total-profit');
+                if (profit >= 0) {
+                    profitEl.textContent = `수익률 +${profitRate}%`;
+                    profitEl.className = 'profit positive';
+                } else {
+                    profitEl.textContent = `수익률 ${profitRate}%`;
+                    profitEl.className = 'profit negative';
+                }
+            }
+
+            getOwnedProperties() {
+                return this.properties.filter(p => p.owned);
+            }
+
+            startPriceUpdates() {
+                this.priceUpdateInterval = setInterval(() => {
+                    this.updatePrices();
+                    updateMap();
+                    updatePortfolio();
+                    if (currentProperty) {
+                        showPropertyDetails(currentProperty.id);
+                    }
+                }, 3000);
+            }
+
+            stopPriceUpdates() {
+                if (this.priceUpdateInterval) {
+                    clearInterval(this.priceUpdateInterval);
+                }
+            }
+        }
 
         // Initialize
-        function init() {
-            renderProperties();
-            updateCounts();
-            setupEventListeners();
-        }
+        const db = new PropertyDatabase();
+        let map = null;
+        let markers = [];
+        let currentProperty = null;
+        let currentFilter = 'all';
 
-        // Render Properties
-        function renderProperties() {
-            const grid = document.getElementById('property-grid');
-            grid.innerHTML = properties.map(property => `
-                <div class="property-card" onclick="openModal(${property.id})">
-                    <img src="${property.images[0]}" alt="${property.title}" class="property-image">
-                    ${property.verified ? '<div class="verified-badge">✓ 검증완료</div>' : ''}
-                    <button class="favorite-btn" onclick="event.stopPropagation(); toggleFavorite(${property.id})">
-                        ${favorites.includes(property.id) ? '❤️' : '🤍'}
-                    </button>
-                    <div class="property-info">
-                        <div class="property-title">${property.title}</div>
-                        <div class="property-location">📍 ${property.location}</div>
-                        <div class="property-price">${property.type === '월세' ? property.monthlyRent : property.price}</div>
-                        <div class="property-features">
-                            <span>📐 ${property.area}㎡</span>
-                            <span>🛏️ ${property.rooms}개</span>
-                            <span>🏢 ${property.floor}/${property.totalFloors}층</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('total-count').textContent = properties.length;
-        }
-
-        // Open Modal
-        function openModal(id) {
-            const property = properties.find(p => p.id === id);
-            if (!property) return;
-
-            currentProperty = property;
-            currentImageIndex = 0;
-
-            // Add to recently viewed
-            if (!recentlyViewed.includes(id)) {
-                recentlyViewed.unshift(id);
-                if (recentlyViewed.length > 10) recentlyViewed.pop();
-                localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
-            }
-
-            const modal = document.getElementById('property-modal');
-            const modalBody = document.getElementById('modal-body');
-
-            modalBody.innerHTML = `
-                <div class="modal-gallery">
-                    <img src="${property.images[currentImageIndex]}" alt="${property.title}" class="modal-image" id="modal-image">
-                    ${property.images.length > 1 ? `
-                        <button class="gallery-nav gallery-prev" onclick="changeImage(-1)">‹</button>
-                        <button class="gallery-nav gallery-next" onclick="changeImage(1)">›</button>
-                    ` : ''}
-                </div>
-                <div class="modal-body">
-                    <div class="modal-header">
-                        ${property.verified ? '<div class="verified-badge">✓ 검증완료</div>' : ''}
-                        <h2 class="modal-title">${property.title}</h2>
-                        <div class="property-location">📍 ${property.location}</div>
-                        <div class="modal-price">${property.type === '월세' ? property.monthlyRent : property.price}</div>
-                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                            <button class="btn btn-primary" style="flex: 1;" onclick="alert('전화 연결: ${property.agent.phone}')">📞 전화하기</button>
-                            <button class="btn btn-secondary" style="flex: 1;" onclick="toggleFavorite(${property.id}); openModal(${property.id});">
-                                ${favorites.includes(property.id) ? '❤️ 찜 해제' : '🤍 찜하기'}
-                            </button>
-                            <button class="btn btn-secondary" onclick="addToComparison(${property.id})">📊 비교하기</button>
-                        </div>
-                    </div>
-
-                    <div class="modal-tabs">
-                        <button class="tab-btn active" onclick="switchTab(0)">상세정보</button>
-                        <button class="tab-btn" onclick="switchTab(1)">등기부등본</button>
-                        <button class="tab-btn" onclick="switchTab(2)">가격추이</button>
-                        <button class="tab-btn" onclick="switchTab(3)">대출계산기</button>
-                        <button class="tab-btn" onclick="switchTab(4)">지도</button>
-                    </div>
-
-                    <div class="tab-content active" id="tab-0">
-                        <div class="detail-grid">
-                            <div class="detail-item">
-                                <div class="detail-label">전용면적</div>
-                                <div class="detail-value">${property.area}㎡</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">방/욕실</div>
-                                <div class="detail-value">${property.rooms}/${property.bathrooms}개</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">층수</div>
-                                <div class="detail-value">${property.floor}/${property.totalFloors}층</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">건축년도</div>
-                                <div class="detail-value">${property.buildYear}년</div>
-                            </div>
-                        </div>
-
-                        <h3>매물 설명</h3>
-                        <p>${property.description}</p>
-
-                        <h3 style="margin-top: 2rem;">옵션</h3>
-                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
-                            ${property.options.map(opt => `<span style="padding: 0.5rem 1rem; background: var(--bg); border-radius: 20px;">✓ ${opt}</span>`).join('')}
-                        </div>
-
-                        <h3 style="margin-top: 2rem;">담당 중개사</h3>
-                        <div style="background: var(--bg); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
-                            <h4>${property.agent.name} (${property.agent.company})</h4>
-                            <p>📞 ${property.agent.phone}</p>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="tab-1">
-                        ${renderDocument(property)}
-                    </div>
-
-                    <div class="tab-content" id="tab-2">
-                        <h3>최근 6개월 가격 추이</h3>
-                        <div class="chart-container">
-                            <canvas id="price-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="tab-3">
-                        ${renderCalculator(property)}
-                    </div>
-
-                    <div class="tab-content" id="tab-4">
-                        <div id="map"></div>
-                    </div>
-                </div>
-            `;
-
-            modal.classList.add('active');
-        }
-
-        // Render Document
-        function renderDocument(property) {
-            return `
-                <div class="document">
-                    <div class="document-header">
-                        <h2 class="document-title">등 기 부 등 본</h2>
-                        <p style="margin-top: 0.5rem; color: #666;">발급일: 2025년 1월 2일</p>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">소재지</div>
-                        <div>${property.location}</div>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">전유부분 면적</div>
-                        <div>${property.area}㎡</div>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">건물구조</div>
-                        <div>철근콘크리트조</div>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">준공년도</div>
-                        <div>${property.buildYear}년</div>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">소유자</div>
-                        <div>개인정보 보호를 위해 비공개</div>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">권리관계</div>
-                        <div style="color: var(--secondary); font-weight: 700;">정상 (압류/가압류 없음)</div>
-                    </div>
-                    <div class="document-row">
-                        <div class="document-label">근저당권</div>
-                        <div>없음</div>
-                    </div>
-                    <p style="text-align: center; color: #666; margin-top: 2rem; font-size: 0.9rem;">
-                        ※ 본 등기부등본은 데모용 샘플입니다. 실제 거래시 반드시 법원 또는 대법원 인터넷등기소에서 발급받은 등기부등본을 확인하시기 바랍니다.
-                    </p>
-                </div>
-            `;
-        }
-
-        // Render Calculator
-        function renderCalculator(property) {
-            const basePrice = parseInt(property.price.replace(/[^0-9]/g, '')) || 0;
-            return `
-                <div class="calculator">
-                    <h3>주택담보대출 계산기</h3>
-                    <div class="calc-input-group">
-                        <label class="calc-label">매매가 (만원)</label>
-                        <input type="number" class="calc-input" id="calc-price" value="${basePrice * 10000}" onchange="calculateLoan()">
-                    </div>
-                    <div class="calc-input-group">
-                        <label class="calc-label">대출비율 (%)</label>
-                        <input type="number" class="calc-input" id="calc-ltv" value="70" max="80" onchange="calculateLoan()">
-                    </div>
-                    <div class="calc-input-group">
-                        <label class="calc-label">금리 (%)</label>
-                        <input type="number" class="calc-input" id="calc-rate" value="4.5" step="0.1" onchange="calculateLoan()">
-                    </div>
-                    <div class="calc-input-group">
-                        <label class="calc-label">대출기간 (년)</label>
-                        <input type="number" class="calc-input" id="calc-years" value="30" onchange="calculateLoan()">
-                    </div>
-                    <div class="calc-result" id="calc-result">
-                        <div class="calc-result-value" id="calc-monthly">계산하기 버튼을 눌러주세요</div>
-                        <div>월 상환금액 (원리금균등상환)</div>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="calculateLoan()">계산하기</button>
-                </div>
-            `;
-        }
-
-        // Calculate Loan
-        function calculateLoan() {
-            const price = parseInt(document.getElementById('calc-price').value);
-            const ltv = parseInt(document.getElementById('calc-ltv').value);
-            const rate = parseFloat(document.getElementById('calc-rate').value);
-            const years = parseInt(document.getElementById('calc-years').value);
-
-            const loanAmount = price * (ltv / 100);
-            const monthlyRate = rate / 100 / 12;
-            const months = years * 12;
-
-            const monthly = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-
-            document.getElementById('calc-monthly').textContent = `${Math.round(monthly).toLocaleString()}원`;
-        }
-
-        // Switch Tab
-        function switchTab(index) {
-            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', i === index);
-            });
-            document.querySelectorAll('.tab-content').forEach((content, i) => {
-                content.classList.toggle('active', i === index);
-            });
-
-            if (index === 2) {
-                setTimeout(() => renderPriceChart(), 100);
-            } else if (index === 4) {
-                setTimeout(() => initMap(), 100);
-            }
-        }
-
-        // Change Image
-        function changeImage(direction) {
-            if (!currentProperty) return;
-            currentImageIndex = (currentImageIndex + direction + currentProperty.images.length) % currentProperty.images.length;
-            document.getElementById('modal-image').src = currentProperty.images[currentImageIndex];
-        }
-
-        // Render Price Chart
-        function renderPriceChart() {
-            const ctx = document.getElementById('price-chart');
-            if (!ctx || !currentProperty) return;
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['6개월 전', '5개월 전', '4개월 전', '3개월 전', '2개월 전', '현재'],
-                    datasets: [{
-                        label: '가격 (만원)',
-                        data: currentProperty.priceHistory,
-                        borderColor: '#0066FF',
-                        backgroundColor: 'rgba(0, 102, 255, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-
-        // Initialize Map
         function initMap() {
-            if (!currentProperty) return;
-
-            const mapEl = document.getElementById('map');
-            if (!mapEl || mapEl._leaflet_id) return;
-
-            const map = L.map('map').setView([currentProperty.lat, currentProperty.lng], 15);
+            map = L.map('map').setView([37.4979, 127.0622], 11);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            L.marker([currentProperty.lat, currentProperty.lng]).addTo(map)
-                .bindPopup(`<b>${currentProperty.title}</b><br>${currentProperty.location}`)
-                .openPopup();
+            updateMap();
+            db.startPriceUpdates();
+            updatePortfolio();
         }
 
-        // Toggle Favorite
-        function toggleFavorite(id) {
-            const index = favorites.indexOf(id);
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(id);
+        function updateMap() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            let properties = db.properties;
+            if (currentFilter === 'owned') {
+                properties = properties.filter(p => p.owned);
+            } else if (currentFilter === 'for-sale') {
+                properties = properties.filter(p => !p.owned);
             }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            renderProperties();
-            updateCounts();
-        }
 
-        // Add to Comparison
-        function addToComparison(id) {
-            if (comparisonList.includes(id)) {
-                alert('이미 비교 목록에 추가되었습니다.');
-                return;
-            }
-            if (comparisonList.length >= 3) {
-                alert('최대 3개까지 비교 가능합니다.');
-                return;
-            }
-            comparisonList.push(id);
-            localStorage.setItem('comparisonList', JSON.stringify(comparisonList));
-            updateComparison();
-            updateCounts();
-        }
+            properties.forEach(property => {
+                const icon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div class="custom-marker ${property.owned ? 'owned' : 'for-sale'}">${(property.currentPrice / 10000).toFixed(1)}억</div>`,
+                    iconSize: [80, 40]
+                });
 
-        // Update Comparison
-        function updateComparison() {
-            const bar = document.getElementById('comparison-bar');
-            const items = document.getElementById('comparison-items');
+                const marker = L.marker([property.lat, property.lng], { icon })
+                    .addTo(map)
+                    .on('click', () => showPropertyDetails(property.id));
 
-            if (comparisonList.length > 0) {
-                bar.classList.add('active');
-                items.innerHTML = comparisonList.map(id => {
-                    const prop = properties.find(p => p.id === id);
-                    return `
-                        <div class="comparison-item">
-                            ${prop.title.substring(0, 20)}...
-                            <button class="remove-comparison" onclick="removeFromComparison(${id})">✕</button>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                bar.classList.remove('active');
-            }
-        }
-
-        // Remove from Comparison
-        function removeFromComparison(id) {
-            comparisonList = comparisonList.filter(i => i !== id);
-            localStorage.setItem('comparisonList', JSON.stringify(comparisonList));
-            updateComparison();
-            updateCounts();
-        }
-
-        // Update Counts
-        function updateCounts() {
-            document.getElementById('favorites-count').textContent = favorites.length;
-            document.getElementById('comparison-count').textContent = comparisonList.length;
-        }
-
-        // Setup Event Listeners
-        function setupEventListeners() {
-            document.getElementById('modal-close').addEventListener('click', () => {
-                document.getElementById('property-modal').classList.remove('active');
+                markers.push(marker);
             });
-
-            document.getElementById('search-input').addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                const filtered = properties.filter(p =>
-                    p.title.toLowerCase().includes(query) ||
-                    p.location.toLowerCase().includes(query)
-                );
-                renderFilteredProperties(filtered);
-            });
-
-            document.getElementById('compare-btn').addEventListener('click', () => {
-                if (comparisonList.length < 2) {
-                    alert('비교할 매물을 2개 이상 선택해주세요.');
-                    return;
-                }
-                alert('비교 기능은 데모 버전에서 지원되지 않습니다.');
-            });
-
-            updateComparison();
         }
 
-        // Render Filtered Properties
-        function renderFilteredProperties(filtered) {
-            const grid = document.getElementById('property-grid');
-            grid.innerHTML = filtered.map(property => `
-                <div class="property-card" onclick="openModal(${property.id})">
-                    <img src="${property.images[0]}" alt="${property.title}" class="property-image">
-                    ${property.verified ? '<div class="verified-badge">✓ 검증완료</div>' : ''}
-                    <button class="favorite-btn" onclick="event.stopPropagation(); toggleFavorite(${property.id})">
-                        ${favorites.includes(property.id) ? '❤️' : '🤍'}
-                    </button>
-                    <div class="property-info">
-                        <div class="property-title">${property.title}</div>
-                        <div class="property-location">📍 ${property.location}</div>
-                        <div class="property-price">${property.type === '월세' ? property.monthlyRent : property.price}</div>
-                        <div class="property-features">
-                            <span>📐 ${property.area}㎡</span>
-                            <span>🛏️ ${property.rooms}개</span>
-                            <span>🏢 ${property.floor}/${property.totalFloors}층</span>
-                        </div>
+        function filterProperties(filter) {
+            currentFilter = filter;
+            updateMap();
+        }
+
+        function showPropertyDetails(propertyId) {
+            const property = db.properties.find(p => p.id === propertyId);
+            if (!property) return;
+
+            currentProperty = property;
+
+            const profit = property.owned ? property.currentPrice - property.purchasePrice : 0;
+            const profitRate = property.owned ? ((profit / property.purchasePrice) * 100).toFixed(2) : 0;
+
+            const content = `
+                <img src="${property.image}" alt="${property.title}" class="property-image">
+                <div class="property-price">${(property.currentPrice / 10000).toFixed(2)}억원</div>
+                <div class="property-title">${property.title}</div>
+                <div class="property-location">📍 ${property.location}</div>
+
+                <div class="property-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">전용면적</div>
+                        <div class="stat-value">${property.area}㎡</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">방 개수</div>
+                        <div class="stat-value">${property.rooms}개</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">건축년도</div>
+                        <div class="stat-value">${property.buildYear}년</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">상태</div>
+                        <div class="stat-value">${property.owned ? '보유중' : '매물'}</div>
                     </div>
                 </div>
-            `).join('');
+
+                ${property.owned ? `
+                    <div class="property-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">매입가</div>
+                            <div class="stat-value">${(property.purchasePrice / 10000).toFixed(2)}억원</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">수익</div>
+                            <div class="stat-value" style="color: ${profit >= 0 ? 'var(--danger)' : 'var(--primary)'}">
+                                ${profit >= 0 ? '+' : ''}${(profit / 10000).toFixed(2)}억 (${profitRate}%)
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="price-history">
+                    <div class="history-title">가격 추이</div>
+                    <div class="chart-container">
+                        <canvas id="price-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    ${property.owned ?
+                        `<button class="btn btn-sell" onclick="sellProperty(${property.id})">매도하기</button>` :
+                        `<button class="btn btn-buy" onclick="buyProperty(${property.id})">매수하기</button>`
+                    }
+                </div>
+            `;
+
+            document.getElementById('sidebar-content').innerHTML = content;
+            document.getElementById('sidebar').classList.add('active');
+
+            setTimeout(() => {
+                const ctx = document.getElementById('price-chart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: property.priceHistory.map((_, i) => ''),
+                            datasets: [{
+                                label: '시세',
+                                data: property.priceHistory,
+                                borderColor: '#0066FF',
+                                backgroundColor: 'rgba(0, 102, 255, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: {
+                                    ticks: {
+                                        callback: function(value) {
+                                            return (value / 10000).toFixed(1) + '억';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 100);
         }
 
-        // Initialize App
-        init();
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            currentProperty = null;
+        }
+
+        function buyProperty(propertyId) {
+            const result = db.buyProperty(propertyId);
+            showToast(result.message, result.success ? 'success' : 'error');
+
+            if (result.success) {
+                updateMap();
+                updatePortfolio();
+                closeSidebar();
+            }
+        }
+
+        function sellProperty(propertyId) {
+            const result = db.sellProperty(propertyId);
+            showToast(result.message, result.success ? 'success' : 'error');
+
+            if (result.success) {
+                updateMap();
+                updatePortfolio();
+                closeSidebar();
+            }
+        }
+
+        function updatePortfolio() {
+            const owned = db.getOwnedProperties();
+            document.getElementById('portfolio-count').textContent = owned.length;
+
+            const list = document.getElementById('portfolio-list');
+            if (owned.length === 0) {
+                list.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">보유한 매물이 없습니다</div>';
+                return;
+            }
+
+            list.innerHTML = owned.map(property => {
+                const profit = property.currentPrice - property.purchasePrice;
+                const profitRate = ((profit / property.purchasePrice) * 100).toFixed(2);
+
+                return `
+                    <div class="portfolio-item" onclick="showPropertyDetails(${property.id})">
+                        <div class="portfolio-item-title">${property.title}</div>
+                        <div class="portfolio-item-info">
+                            <span>${(property.currentPrice / 10000).toFixed(2)}억원</span>
+                            <span class="portfolio-profit" style="color: ${profit >= 0 ? 'var(--danger)' : 'var(--primary)'}">
+                                ${profit >= 0 ? '+' : ''}${profitRate}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function togglePortfolio() {
+            const content = document.getElementById('portfolio-list');
+            const btn = document.querySelector('.toggle-btn');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                btn.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                btn.textContent = '▲';
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initMap();
+        });
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            db.stopPriceUpdates();
+        });
     </script>
 </body>
 </html>
