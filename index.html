@@ -3,81 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>집다 - 대한민국 NO.1 부동산 플랫폼</title>
-    <meta name="description" content="서울 강남, 서초, 마포 등 전국 원룸, 투룸, 오피스텔 매물 정보. 실시간 업데이트!">
+    <title>부동산114 - 대한민국 NO.1 부동산 플랫폼</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Kakao Map API -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY_HERE&libraries=services,clusterer"></script>
-
-    <!-- Chart.js for graphs -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    <style>
-        /* CSS from styles.css */
-        :root {
-            --primary-color: #ff6b35;
-            --primary-hover: #e65a2e;
-            --secondary-color: #2d3436;
-            --accent-color: #0984e3;
-            --success-color: #00b894;
-            --danger-color: #d63031;
-            --warning-color: #fdcb6e;
-            --light-bg: #f8f9fa;
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --card-shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
-            --border-radius: 8px;
-            --transition: all 0.3s ease;
-        }
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #0066FF;
+            --secondary: #00C73C;
+            --accent: #FF6B00;
+            --bg: #F8F9FA;
+            --text: #1a1a1a;
+            --border: #E5E5E5;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-            color: var(--secondary-color);
-            background-color: var(--light-bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
         }
 
         /* Header */
         .header {
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: white;
+            box-shadow: var(--shadow);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
-        .container {
+        .header-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .header-content {
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
         }
 
         .logo {
             font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-weight: 800;
+            color: var(--primary);
             text-decoration: none;
         }
 
@@ -89,506 +72,194 @@
 
         .nav-link {
             text-decoration: none;
-            color: var(--secondary-color);
+            color: var(--text);
             font-weight: 500;
-            transition: var(--transition);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
+            transition: all 0.3s;
         }
 
         .nav-link:hover {
-            color: var(--primary-color);
-            background: var(--light-bg);
+            color: var(--primary);
         }
 
-        .nav-link.active {
-            color: var(--primary-color);
-            background: var(--light-bg);
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .nav-link.premium {
-            color: var(--warning-color);
+        .btn-primary {
+            background: var(--primary);
+            color: white;
         }
 
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
+        .btn-primary:hover {
+            background: #0052CC;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
         }
 
         .btn-icon {
             background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
+            border: none;
+            font-size: 1.5rem;
             cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
             position: relative;
-        }
-
-        .btn-icon:hover {
-            background: var(--primary-color);
-            color: #fff;
         }
 
         .badge {
             position: absolute;
             top: -8px;
             right: -8px;
-            background: var(--danger-color);
+            background: #FF3B30;
             color: white;
             border-radius: 50%;
             width: 20px;
             height: 20px;
+            font-size: 0.7rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
         }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: var(--transition);
+        /* Search Section */
+        .search-section {
+            background: linear-gradient(135deg, var(--primary), #0052CC);
+            padding: 4rem 2rem;
+            color: white;
+            text-align: center;
         }
 
-        .btn-primary {
-            background: var(--primary-color);
-            color: #fff;
+        .search-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
+        .search-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
         }
 
-        .btn-secondary {
-            background: #6c757d;
-            color: #fff;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        /* Search Bar */
-        .search-bar {
-            background: #fff;
-            padding: 1rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .search-content {
+        .search-box {
+            max-width: 800px;
+            margin: 0 auto;
             display: flex;
             gap: 1rem;
-            align-items: center;
-        }
-
-        .search-input-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            background: var(--light-bg);
-            border-radius: var(--border-radius);
-            padding: 0.75rem 1rem;
-        }
-
-        .search-input-wrapper i {
-            color: #999;
-            margin-right: 0.75rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 12px;
         }
 
         .search-input {
             flex: 1;
             border: none;
-            background: transparent;
+            padding: 1rem;
             font-size: 1rem;
             outline: none;
         }
 
+        .btn-search {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .btn-filter {
             background: white;
-            border: 2px solid #e0e0e0;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius);
+            color: var(--text);
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .btn-filter:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        /* Filter Panel */
-        .filter-panel {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 400px;
-            height: 100vh;
-            background: white;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-            z-index: 2000;
-            transition: var(--transition);
-            overflow-y: auto;
-        }
-
-        .filter-panel.active {
-            right: 0;
-        }
-
-        .filter-content {
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 2rem;
         }
 
-        .filter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .filter-header h3 {
-            font-size: 1.5rem;
-        }
-
-        .btn-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .filter-section {
-            margin-bottom: 2rem;
-        }
-
-        .filter-section h4 {
-            margin-bottom: 1rem;
-            color: var(--secondary-color);
-        }
-
-        .filter-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .filter-option {
-            background: var(--light-bg);
-            border: 2px solid transparent;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .filter-option:hover, .filter-option.active {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .price-inputs {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .price-input {
-            flex: 1;
-            padding: 0.5rem;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-        }
-
-        .filter-checkboxes {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .checkbox {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-        }
-
-        .checkbox input {
-            cursor: pointer;
-        }
-
-        .filter-footer {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .filter-footer .btn {
-            flex: 1;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-top: 2rem;
-        }
-
-        .view-toggle {
-            background: white;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
-        }
-
-        .view-toggle .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .view-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .view-btn {
-            background: white;
-            border: 2px solid #e0e0e0;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .view-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .results-info {
-            color: #666;
-        }
-
-        .sort-select {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--border-radius);
-            background: white;
-            cursor: pointer;
-        }
-
-        /* List View */
-        .list-view {
-            display: none;
-        }
-
-        .list-view.active {
-            display: block;
-        }
-
-        /* Statistics Section */
-        .statistics-section {
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 3rem;
         }
 
-        .section-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .section-title i {
-            color: var(--primary-color);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
         .stat-card {
-            background: #fff;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            box-shadow: var(--card-shadow-hover);
-            transform: translateY(-2px);
-        }
-
-        .stat-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--secondary-color);
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--light-bg);
-        }
-
-        .stat-card canvas {
-            max-height: 250px;
-        }
-
-        .live-stats .stats-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: var(--light-bg);
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .stat-item:hover {
-            background: #e9ecef;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-        }
-
-        .stat-info {
-            flex: 1;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.25rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
         }
 
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-            line-height: 1;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
         }
 
-        /* Premium Banner */
-        .premium-banner {
-            background: linear-gradient(135deg, var(--warning-color), #f39c12);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .premium-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .premium-content i {
-            font-size: 2rem;
-            color: white;
-        }
-
-        .premium-content h3 {
-            color: white;
-            margin-bottom: 0.25rem;
-        }
-
-        .premium-content p {
-            color: rgba(255,255,255,0.9);
+        .stat-label {
+            color: #666;
             font-size: 0.9rem;
         }
 
-        .btn-premium {
-            background: white;
-            color: var(--warning-color);
-            padding: 0.75rem 2rem;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-premium:hover {
-            transform: scale(1.05);
-        }
-
-        /* Property List */
-        .property-list {
+        /* Property Grid */
+        .property-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
 
-        /* Property Card */
         .property-card {
-            background: #fff;
-            border-radius: var(--border-radius);
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
             cursor: pointer;
             position: relative;
         }
 
         .property-card:hover {
-            box-shadow: var(--card-shadow-hover);
+            box-shadow: var(--shadow-hover);
             transform: translateY(-4px);
-        }
-
-        .property-card.premium {
-            border: 2px solid var(--warning-color);
         }
 
         .property-image {
             width: 100%;
             height: 220px;
             object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
         }
 
-        .premium-badge {
+        .verified-badge {
             position: absolute;
             top: 12px;
             left: 12px;
-            background: var(--warning-color);
-            color: var(--secondary-color);
+            background: var(--secondary);
+            color: white;
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -602,154 +273,49 @@
             position: absolute;
             top: 12px;
             right: 12px;
-            background: rgba(255, 255, 255, 0.9);
+            background: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
-            font-size: 1.2rem;
-        }
-
-        .favorite-btn:hover {
-            background: #fff;
-            transform: scale(1.1);
-        }
-
-        .favorite-btn.favorited {
-            color: var(--danger-color);
+            box-shadow: var(--shadow);
         }
 
         .property-info {
             padding: 1.5rem;
         }
 
-        .property-type {
-            display: inline-block;
-            background: var(--light-bg);
-            color: var(--secondary-color);
-            padding: 0.3rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
         .property-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--secondary-color);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         .property-location {
             color: #666;
             font-size: 0.9rem;
             margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
         }
 
         .property-price {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
             margin-bottom: 1rem;
-        }
-
-        .property-price small {
-            font-size: 0.8rem;
-            color: #666;
-            font-weight: 400;
         }
 
         .property-features {
             display: flex;
             gap: 1rem;
             padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
+            border-top: 1px solid var(--border);
             font-size: 0.9rem;
-        }
-
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        /* Load More */
-        .load-more {
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        /* Map View */
-        .map-view {
-            display: none;
-            position: relative;
-        }
-
-        .map-view.active {
-            display: block;
-        }
-
-        .map-container {
-            height: 600px;
-            background: #fff;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-
-        .map-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .map-control-btn {
-            background: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .map-control-btn:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .property-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            box-shadow: var(--card-shadow);
-            display: none;
+            color: #666;
         }
 
         /* Modal */
@@ -760,65 +326,69 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0,0,0,0.7);
             z-index: 2000;
-            padding: 2rem;
             overflow-y: auto;
+            padding: 2rem;
         }
 
         .modal.active {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
         }
 
         .modal-content {
-            background: #fff;
-            border-radius: var(--border-radius);
-            max-width: 900px;
+            background: white;
+            border-radius: 16px;
+            max-width: 1000px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
+            margin: 2rem auto;
             position: relative;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: rgba(255, 255, 255, 0.9);
+            background: white;
             border: none;
             width: 40px;
             height: 40px;
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
-            transition: var(--transition);
             z-index: 10;
+            box-shadow: var(--shadow);
         }
 
-        .modal-close:hover {
-            background: #fff;
-            transform: rotate(90deg);
+        .modal-gallery {
+            position: relative;
+            height: 400px;
+            background: #f0f0f0;
         }
 
         .modal-image {
             width: 100%;
-            height: 400px;
+            height: 100%;
             object-fit: cover;
         }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .gallery-prev { left: 1rem; }
+        .gallery-next { right: 1rem; }
 
         .modal-body {
             padding: 2rem;
@@ -828,1054 +398,881 @@
             margin-bottom: 2rem;
         }
 
-        .modal-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-location {
-            color: #666;
-            font-size: 1rem;
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 800;
             margin-bottom: 1rem;
         }
 
         .modal-price {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
         }
 
-        .modal-details {
+        .modal-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .detail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
-            padding: 1.5rem;
-            background: var(--light-bg);
-            border-radius: var(--border-radius);
         }
 
-        .detail-item h4 {
+        .detail-item {
+            padding: 1.5rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .detail-label {
             color: #666;
             font-size: 0.9rem;
-            font-weight: 500;
             margin-bottom: 0.5rem;
         }
 
-        .detail-item p {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .modal-section {
-            margin: 2rem 0;
-        }
-
-        .modal-section h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: var(--secondary-color);
-        }
-
-        .options-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background: var(--light-bg);
-            border-radius: 4px;
-        }
-
-        .agent-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: var(--light-bg);
-            border-radius: var(--border-radius);
-        }
-
-        .agent-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        .detail-value {
+            font-size: 1.2rem;
             font-weight: 700;
         }
 
-        .agent-details h4 {
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
+        /* Document Verification */
+        .document {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
         }
 
-        .agent-details p {
-            color: #666;
-            font-size: 0.9rem;
+        .document-header {
+            text-align: center;
+            border-bottom: 2px solid var(--text);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .modal-actions {
-            display: flex;
+        .document-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .document-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
             gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .document-label {
+            font-weight: 600;
+        }
+
+        /* Map */
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        /* Calculator */
+        .calculator {
+            background: var(--bg);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .calc-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .calc-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .calc-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .calc-result {
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
             margin-top: 2rem;
         }
 
-        .btn-contact, .btn-tour {
-            flex: 1;
-            padding: 1rem;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-contact {
-            background: var(--primary-color);
-            color: #fff;
-        }
-
-        .btn-contact:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-
-        .btn-tour {
-            background: #fff;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .btn-tour:hover {
-            background: var(--light-bg);
-        }
-
-        /* Favorites Sidebar */
-        .favorites-sidebar {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 400px;
-            height: 100vh;
-            background: white;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-            z-index: 2000;
-            transition: var(--transition);
-            overflow-y: auto;
-        }
-
-        .favorites-sidebar.active {
-            right: 0;
-        }
-
-        .favorites-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .favorites-body {
-            padding: 2rem;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #999;
-            padding: 3rem 1rem;
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--secondary-color);
-            color: #fff;
-            padding: 3rem 2rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .footer-section h4 {
-            margin-bottom: 1rem;
-        }
-
-        .footer-section a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: var(--transition);
-            display: block;
+        .calc-result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
             margin-bottom: 0.5rem;
         }
 
-        .footer-section a:hover {
-            color: #fff;
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 2rem 0;
         }
 
-        .footer-bottom {
+        /* Comparison Tool */
+        .comparison-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            transform: translateY(100%);
+            transition: all 0.3s;
+            z-index: 1500;
+        }
+
+        .comparison-bar.active {
+            transform: translateY(0);
+        }
+
+        .comparison-content {
             max-width: 1400px;
-            margin: 2rem auto 0;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .footer-badges {
+            margin: 0 auto;
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .badge-item {
+        .comparison-items {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .comparison-item {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 0.25rem;
-            font-size: 0.9rem;
+            gap: 0.5rem;
+        }
+
+        .remove-comparison {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .header-content {
+            .search-box {
                 flex-direction: column;
-                gap: 1rem;
+            }
+
+            .property-grid {
+                grid-template-columns: 1fr;
             }
 
             .nav {
-                gap: 1rem;
-                font-size: 0.9rem;
+                display: none;
             }
-
-            .property-list {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .filter-panel, .favorites-sidebar {
-                width: 100%;
-                right: -100%;
-            }
-        }
-
-        .hidden {
-            display: none;
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-home"></i>
-                    <span>집다</span>
-                </a>
-
-                <nav class="nav">
-                    <a href="index.html" class="nav-link active">홈</a>
-                    <a href="map.html" class="nav-link">지도</a>
-                    <a href="favorites.html" class="nav-link">찜</a>
-                    <a href="analytics.html" class="nav-link">분석</a>
-                    <a href="about.html" class="nav-link">회사소개</a>
-                </nav>
-
-                <div class="header-actions">
-                    <button class="btn-icon" id="favorites-btn" onclick="window.location.href='favorites.html'">
-                        <i class="fas fa-heart"></i>
-                        <span class="badge" id="favorites-count">0</span>
-                    </button>
-                    <button class="btn btn-primary">중개사 등록</button>
-                </div>
+        <div class="header-content">
+            <a href="#" class="logo">부동산114</a>
+            <nav class="nav">
+                <a href="#" class="nav-link">매물</a>
+                <a href="#" class="nav-link">지도</a>
+                <a href="#" class="nav-link">시세</a>
+                <a href="#" class="nav-link">계산기</a>
+            </nav>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="btn-icon" id="favorites-btn">
+                    ❤️
+                    <span class="badge" id="favorites-count">0</span>
+                </button>
+                <button class="btn-icon" id="comparison-btn">
+                    📊
+                    <span class="badge" id="comparison-count">0</span>
+                </button>
+                <button class="btn btn-primary">로그인</button>
             </div>
         </div>
     </header>
 
-    <!-- Search Bar -->
-    <div class="search-bar">
-        <div class="container">
-            <div class="search-content">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class="search-input" placeholder="지역, 지하철역 검색 (예: 강남역, 홍대입구역)" id="search-input">
-                </div>
+    <!-- Search Section -->
+    <section class="search-section">
+        <h1 class="search-title">나에게 딱 맞는 집 찾기</h1>
+        <p class="search-subtitle">서울 강남, 판교 등 인기 지역 30,000+ 매물</p>
+        <div class="search-box">
+            <input type="text" class="search-input" id="search-input" placeholder="지역, 지하철역 검색 (예: 강남역, 판교역, 홍대입구)">
+            <button class="btn-filter" id="filter-btn">⚙️ 필터</button>
+            <button class="btn-search" id="search-btn">검색</button>
+        </div>
+    </section>
 
-                <button class="btn-filter" id="filter-btn">
-                    <i class="fas fa-sliders-h"></i>
-                    상세조건
-                </button>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-count">0</div>
+                <div class="stat-label">전체 매물</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">98.5%</div>
+                <div class="stat-label">검증 완료율</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">2.3일</div>
+                <div class="stat-label">평균 계약 소요시간</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">15,234</div>
+                <div class="stat-label">이번 달 거래 완료</div>
             </div>
         </div>
+
+        <!-- Property Grid -->
+        <div class="property-grid" id="property-grid"></div>
     </div>
 
-    <!-- Filter Panel -->
-    <div class="filter-panel" id="filter-panel">
-        <div class="filter-content">
-            <div class="filter-header">
-                <h3>상세조건</h3>
-                <button class="btn-close" id="filter-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="filter-body">
-                <!-- 거래 유형 -->
-                <div class="filter-section">
-                    <h4>거래 유형</h4>
-                    <div class="filter-options">
-                        <button class="filter-option active" data-type="all">전체</button>
-                        <button class="filter-option" data-type="월세">월세</button>
-                        <button class="filter-option" data-type="전세">전세</button>
-                        <button class="filter-option" data-type="매매">매매</button>
-                    </div>
-                </div>
-
-                <!-- 가격 범위 -->
-                <div class="filter-section">
-                    <h4>월세/전세 (만원)</h4>
-                    <div class="price-inputs">
-                        <input type="number" class="price-input" id="min-price" placeholder="최소" min="0">
-                        <span>~</span>
-                        <input type="number" class="price-input" id="max-price" placeholder="최대" min="0">
-                    </div>
-                </div>
-
-                <!-- 면적 -->
-                <div class="filter-section">
-                    <h4>면적 (m²)</h4>
-                    <div class="price-inputs">
-                        <input type="number" class="price-input" id="min-area" placeholder="최소" min="0">
-                        <span>~</span>
-                        <input type="number" class="price-input" id="max-area" placeholder="최대" min="0">
-                    </div>
-                </div>
-
-                <!-- 방 개수 -->
-                <div class="filter-section">
-                    <h4>방 개수</h4>
-                    <div class="filter-options">
-                        <button class="filter-option active" data-rooms="all">전체</button>
-                        <button class="filter-option" data-rooms="1">1개</button>
-                        <button class="filter-option" data-rooms="2">2개</button>
-                        <button class="filter-option" data-rooms="3">3개+</button>
-                    </div>
-                </div>
-
-                <!-- 옵션 -->
-                <div class="filter-section">
-                    <h4>옵션</h4>
-                    <div class="filter-checkboxes">
-                        <label class="checkbox">
-                            <input type="checkbox" data-option="주차">
-                            <span>주차 가능</span>
-                        </label>
-                        <label class="checkbox">
-                            <input type="checkbox" data-option="엘리베이터">
-                            <span>엘리베이터</span>
-                        </label>
-                        <label class="checkbox">
-                            <input type="checkbox" data-option="반려동물">
-                            <span>반려동물</span>
-                        </label>
-                        <label class="checkbox">
-                            <input type="checkbox" data-option="풀옵션">
-                            <span>풀옵션</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="filter-footer">
-                <button class="btn btn-secondary" id="filter-reset">초기화</button>
-                <button class="btn btn-primary" id="filter-apply">적용</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- View Toggle -->
-        <div class="view-toggle">
-            <div class="container">
-                <div class="view-buttons">
-                    <button class="view-btn active" data-view="list">
-                        <i class="fas fa-list"></i>
-                        리스트
-                    </button>
-                    <button class="view-btn" data-view="map" onclick="window.location.href='map.html'">
-                        <i class="fas fa-map"></i>
-                        지도
-                    </button>
-                </div>
-
-                <div class="results-info">
-                    <span id="results-count">0</span>개의 매물
-                </div>
-
-                <div class="sort-options">
-                    <select id="sort-select" class="sort-select">
-                        <option value="recent">최신순</option>
-                        <option value="price-low">가격 낮은순</option>
-                        <option value="price-high">가격 높은순</option>
-                        <option value="area-large">면적 큰순</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- List View -->
-        <div class="list-view active" id="list-view">
-            <div class="container">
-                <!-- Statistics Section -->
-                <div class="statistics-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-chart-line"></i>
-                        실시간 부동산 시장 분석
-                    </h2>
-
-                    <div class="stats-grid">
-                        <!-- 지역별 평균 가격 -->
-                        <div class="stat-card">
-                            <h3>지역별 평균 가격</h3>
-                            <canvas id="districtPriceChart"></canvas>
-                        </div>
-
-                        <!-- 최근 7일 거래 추이 -->
-                        <div class="stat-card">
-                            <h3>최근 7일 거래 추이</h3>
-                            <canvas id="weeklyTrendChart"></canvas>
-                        </div>
-
-                        <!-- 매물 타입 분포 -->
-                        <div class="stat-card">
-                            <h3>매물 타입 분포</h3>
-                            <canvas id="propertyTypeChart"></canvas>
-                        </div>
-
-                        <!-- 실시간 통계 -->
-                        <div class="stat-card live-stats">
-                            <h3>실시간 통계</h3>
-                            <div class="stats-list">
-                                <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-home"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">전체 매물</div>
-                                        <div class="stat-value" id="total-properties">0</div>
-                                    </div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-fire"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">오늘의 인기 매물</div>
-                                        <div class="stat-value" id="hot-properties">0</div>
-                                    </div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-check-circle"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">오늘 거래 완료</div>
-                                        <div class="stat-value" id="sold-today">12</div>
-                                    </div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-clock"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">평균 거래 시간</div>
-                                        <div class="stat-value">3.2일</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Premium Banner -->
-                <div class="premium-banner">
-                    <div class="premium-content">
-                        <i class="fas fa-crown"></i>
-                        <div>
-                            <h3>프리미엄 매물로 더 많은 고객에게!</h3>
-                            <p>상단 노출로 조회수 5배 증가! 월 99,000원</p>
-                        </div>
-                        <button class="btn btn-premium">지금 등록하기</button>
-                    </div>
-                </div>
-
-                <!-- Property List -->
-                <div class="property-list" id="property-list">
-                    <!-- Properties will be inserted here by JavaScript -->
-                </div>
-
-                <!-- Load More -->
-                <div class="load-more">
-                    <button class="btn btn-secondary" id="load-more-btn">더 보기</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Property Detail Modal -->
+    <!-- Property Modal -->
     <div class="modal" id="property-modal">
         <div class="modal-content">
-            <button class="modal-close" id="modal-close">
-                <i class="fas fa-times"></i>
-            </button>
-
-            <div class="modal-body" id="modal-body">
-                <!-- Property details will be inserted here -->
-            </div>
+            <button class="modal-close" id="modal-close">✕</button>
+            <div id="modal-body"></div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>집다</h4>
-                    <p>대한민국 NO.1 부동산 플랫폼</p>
-                    <p>실시간 매물 정보 • 안심 거래 • 프리미엄 서비스</p>
-                </div>
-
-                <div class="footer-section">
-                    <h4>고객센터</h4>
-                    <p>평일 09:00 - 18:00</p>
-                    <p><i class="fas fa-phone"></i> 1588-1234</p>
-                    <p><i class="fas fa-envelope"></i> support@jikbangpro.com</p>
-                </div>
-
-                <div class="footer-section">
-                    <h4>중개사 서비스</h4>
-                    <p><a href="#">프리미엄 등록</a></p>
-                    <p><a href="#">수익 분석</a></p>
-                    <p><a href="#">중개사 등록</a></p>
-                </div>
-
-                <div class="footer-section">
-                    <h4>회사 정보</h4>
-                    <p><a href="about.html">회사 소개</a></p>
-                    <p><a href="#">이용약관</a></p>
-                    <p><a href="#">개인정보처리방침</a></p>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2025 집다. Built with ❤️ in Seoul, Korea</p>
-                <div class="footer-badges">
-                    <span class="badge-item"><i class="fas fa-shield-alt"></i> 안심거래</span>
-                    <span class="badge-item"><i class="fas fa-certificate"></i> 공인중개사</span>
-                    <span class="badge-item"><i class="fas fa-lock"></i> 개인정보보호</span>
-                </div>
-            </div>
+    <!-- Comparison Bar -->
+    <div class="comparison-bar" id="comparison-bar">
+        <div class="comparison-content">
+            <div class="comparison-items" id="comparison-items"></div>
+            <button class="btn btn-primary" id="compare-btn">비교하기</button>
         </div>
-    </footer>
+    </div>
 
     <script>
-        // Inline JavaScript - data.js, app.js, simulation.js combined
-
-        // DATA.JS - Property data
+        // Property Data
         const properties = [
-    // Pangyo properties
-    {
-        id: 101, title: "판교테크노밸리 초역세권 신축 오피스텔", type: "원룸", saleType: "월세", price: 2000, monthlyRent: 75,
-        address: "경기도 성남시 분당구 삼평동 681", district: "성남시 분당구", area: 36, rooms: 1, bathrooms: 1,
-        floor: 12, totalFloors: 20, buildYear: 2024,
-        options: ["에어컨", "냉장고", "세탁기", "인덕션", "신발장", "붙박이장", "전자도어락", "주차가능"],
-        description: "판교테크노밸리 도보 2분 거리 신축 오피스텔입니다.",
-        lat: 37.4020, lng: 127.1080, image: "https://picsum.photos/seed/pangyo1/400/300",
-        agent: { name: "판교부동산", phone: "010-1111-2222", company: "판교중개사무소" },
-        premium: true, views: 2456, createdAt: "2025-11-28"
-    },
-    {
-        id: 1, title: "신논현역 초역세권 신축 오피스텔", type: "원룸", saleType: "월세", price: 500, monthlyRent: 60,
-        address: "서울시 강남구 논현동 123-45", district: "강남구", area: 33, rooms: 1, bathrooms: 1,
-        floor: 8, totalFloors: 15, buildYear: 2024,
-        options: ["에어컨", "냉장고", "세탁기", "인덕션", "신발장", "붙박이장", "전자도어락"],
-        description: "신논현역 도보 2분 거리의 신축 오피스텔입니다.",
-        lat: 37.5048, lng: 127.0242, image: "https://picsum.photos/seed/prop1/400/300",
-        agent: { name: "김부동산", phone: "010-1234-5678", company: "강남부동산" },
-        premium: true, views: 1234, createdAt: "2025-11-25"
-    },
-    {
-        id: 2, title: "강남역 대로변 투룸 오피스텔", type: "투룸", saleType: "전세", price: 35000, monthlyRent: 0,
-        address: "서울시 강남구 역삼동 789-12", district: "강남구", area: 45, rooms: 2, bathrooms: 1,
-        floor: 12, totalFloors: 20, buildYear: 2022,
-        options: ["에어컨", "냉장고", "세탁기", "가스레인지", "신발장", "붙박이장", "베란다", "주차가능"],
-        description: "강남역 5분 거리, 분리형 투룸으로 신혼부부에게 최적화된 공간입니다.",
-        lat: 37.4979, lng: 127.0276, image: "https://picsum.photos/seed/prop2/400/300",
-        agent: { name: "이공인중개사", phone: "010-2345-6789", company: "역삼공인중개사" },
-        premium: true, views: 892, createdAt: "2025-11-26"
-    },
-    {
-        id: 6, title: "홍대입구역 신축 오피스텔", type: "원룸", saleType: "월세", price: 3000, monthlyRent: 70,
-        address: "서울시 마포구 서교동 123-45", district: "마포구", area: 35, rooms: 1, bathrooms: 1,
-        floor: 7, totalFloors: 12, buildYear: 2024,
-        options: ["에어컨", "냉장고", "세탁기", "인덕션", "신발장", "붙박이장", "전자도어락", "택배보관함"],
-        description: "홍대입구역 5분 거리 신축 오피스텔입니다.",
-        lat: 37.5565, lng: 126.9236, image: "https://picsum.photos/seed/prop6/400/300",
-        agent: { name: "강공인중개사", phone: "010-6789-0123", company: "홍대부동산" },
-        premium: true, views: 1823, createdAt: "2025-11-28"
-    }
-];
-
-        // APP.JS - Main application
-        class RealEstateApp {
-            constructor() {
-                this.properties = properties;
-                this.filteredProperties = [...properties];
-                this.favorites = this.loadFavorites();
-                this.filters = { search: '', saleType: 'all', rooms: 'all' };
-                this.sortBy = 'recent';
-                this.init();
+            {
+                id: 1,
+                title: "판교테크노밸리 신축 오피스텔",
+                location: "경기도 성남시 분당구 삼평동",
+                price: "2억 5천",
+                monthlyRent: "100만원",
+                type: "월세",
+                area: 42,
+                rooms: 1,
+                bathrooms: 1,
+                floor: 12,
+                totalFloors: 25,
+                buildYear: 2024,
+                verified: true,
+                images: [
+                    "https://picsum.photos/seed/pangyo1/800/600",
+                    "https://picsum.photos/seed/pangyo2/800/600",
+                    "https://picsum.photos/seed/pangyo3/800/600"
+                ],
+                lat: 37.4020,
+                lng: 127.1080,
+                description: "판교테크노밸리 도보 3분, 신분당선 판교역 5분 거리의 신축 오피스텔입니다. 풀옵션, 주차 가능.",
+                options: ["에어컨", "냉장고", "세탁기", "인덕션", "전자도어락", "주차", "엘리베이터", "CCTV"],
+                agent: { name: "김부동산", phone: "010-1234-5678", company: "판교공인중개사" },
+                priceHistory: [230, 235, 240, 245, 250]
+            },
+            {
+                id: 2,
+                title: "강남역 초역세권 투룸",
+                location: "서울시 강남구 역삼동",
+                price: "5억",
+                monthlyRent: "150만원",
+                type: "월세",
+                area: 55,
+                rooms: 2,
+                bathrooms: 1,
+                floor: 8,
+                totalFloors: 20,
+                buildYear: 2022,
+                verified: true,
+                images: [
+                    "https://picsum.photos/seed/gangnam1/800/600",
+                    "https://picsum.photos/seed/gangnam2/800/600"
+                ],
+                lat: 37.4979,
+                lng: 127.0276,
+                description: "강남역 도보 2분 거리, 분리형 투룸 오피스텔입니다.",
+                options: ["에어컨", "냉장고", "세탁기", "가스레인지", "붙박이장", "주차"],
+                agent: { name: "이중개사", phone: "010-2345-6789", company: "강남부동산" },
+                priceHistory: [480, 485, 490, 495, 500]
+            },
+            {
+                id: 3,
+                title: "홍대입구 신축 원룸",
+                location: "서울시 마포구 서교동",
+                price: "1000만원",
+                monthlyRent: "70만원",
+                type: "월세",
+                area: 33,
+                rooms: 1,
+                bathrooms: 1,
+                floor: 5,
+                totalFloors: 12,
+                buildYear: 2024,
+                verified: true,
+                images: [
+                    "https://picsum.photos/seed/hongdae1/800/600",
+                    "https://picsum.photos/seed/hongdae2/800/600"
+                ],
+                lat: 37.5565,
+                lng: 126.9236,
+                description: "홍대입구역 5분 거리 신축 원룸입니다.",
+                options: ["에어컨", "냉장고", "세탁기", "인덕션", "전자도어락"],
+                agent: { name: "박공인", phone: "010-3456-7890", company: "홍대부동산" },
+                priceHistory: [60, 62, 65, 68, 70]
+            },
+            {
+                id: 4,
+                title: "서초동 래미안 아파트",
+                location: "서울시 서초구 서초동",
+                price: "15억",
+                monthlyRent: null,
+                type: "매매",
+                area: 84,
+                rooms: 3,
+                bathrooms: 2,
+                floor: 15,
+                totalFloors: 25,
+                buildYear: 2020,
+                verified: true,
+                images: [
+                    "https://picsum.photos/seed/seocho1/800/600",
+                    "https://picsum.photos/seed/seocho2/800/600"
+                ],
+                lat: 37.4837,
+                lng: 127.0324,
+                description: "서초동 래미안 아파트 84㎡ 매매입니다.",
+                options: ["에어컨", "붙박이장", "주차", "엘리베이터", "놀이터", "헬스장"],
+                agent: { name: "최부동산", phone: "010-4567-8901", company: "서초공인중개사" },
+                priceHistory: [1400, 1420, 1450, 1480, 1500]
+            },
+            {
+                id: 5,
+                title: "판교 현대아파트 넓은 평수",
+                location: "경기도 성남시 분당구 백현동",
+                price: "12억",
+                monthlyRent: null,
+                type: "매매",
+                area: 102,
+                rooms: 4,
+                bathrooms: 2,
+                floor: 10,
+                totalFloors: 20,
+                buildYear: 2018,
+                verified: true,
+                images: [
+                    "https://picsum.photos/seed/pangyo-apt1/800/600",
+                    "https://picsum.photos/seed/pangyo-apt2/800/600"
+                ],
+                lat: 37.3944,
+                lng: 127.1116,
+                description: "판교신도시 현대아파트 넓은 4룸입니다. 학군 좋고 교통 편리합니다.",
+                options: ["에어컨", "붙박이장", "주차2대", "엘리베이터", "놀이터", "헬스장", "사우나"],
+                agent: { name: "정공인", phone: "010-5678-9012", company: "판교프라임공인" },
+                priceHistory: [1150, 1170, 1180, 1190, 1200]
+            },
+            {
+                id: 6,
+                title: "송파 잠실 신축 오피스텔",
+                location: "서울시 송파구 잠실동",
+                price: "3000만원",
+                monthlyRent: "120만원",
+                type: "월세",
+                area: 38,
+                rooms: 1,
+                bathrooms: 1,
+                floor: 18,
+                totalFloors: 30,
+                buildYear: 2024,
+                verified: true,
+                images: [
+                    "https://picsum.photos/seed/jamsil1/800/600"
+                ],
+                lat: 37.5133,
+                lng: 127.1000,
+                description: "잠실역 도보 5분, 롯데월드타워 전망 신축 오피스텔입니다.",
+                options: ["에어컨", "냉장고", "세탁기", "인덕션", "주차", "피트니스"],
+                agent: { name: "윤중개사", phone: "010-6789-0123", company: "송파부동산" },
+                priceHistory: [110, 112, 115, 118, 120]
             }
+        ];
 
-            init() {
-                this.setupEventListeners();
-                this.renderProperties();
-                this.updateResultCount();
-                this.initializeCharts();
-                this.updateLiveStats();
-                this.updateFavoritesCount();
-            }
+        // App State
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+        let comparisonList = JSON.parse(localStorage.getItem('comparisonList') || '[]');
+        let currentProperty = null;
+        let currentImageIndex = 0;
 
-            setupEventListeners() {
-                // Search
-                const searchInput = document.getElementById('search-input');
-                if (searchInput) {
-                    searchInput.addEventListener('input', (e) => {
-                        this.filters.search = e.target.value;
-                        this.applyFilters();
-                    });
-                }
+        // Initialize
+        function init() {
+            renderProperties();
+            updateCounts();
+            setupEventListeners();
+        }
 
-                // Filter button
-                const filterBtn = document.getElementById('filter-btn');
-                const filterPanel = document.getElementById('filter-panel');
-                const filterClose = document.getElementById('filter-close');
-                const filterApply = document.getElementById('filter-apply');
-                const filterReset = document.getElementById('filter-reset');
-
-                if (filterBtn) {
-                    filterBtn.addEventListener('click', () => {
-                        filterPanel.classList.add('active');
-                    });
-                }
-                if (filterClose) {
-                    filterClose.addEventListener('click', () => {
-                        filterPanel.classList.remove('active');
-                    });
-                }
-                if (filterApply) {
-                    filterApply.addEventListener('click', () => {
-                        this.applyFilters();
-                        filterPanel.classList.remove('active');
-                    });
-                }
-                if (filterReset) {
-                    filterReset.addEventListener('click', () => {
-                        this.filters = { search: '', saleType: 'all', rooms: 'all' };
-                        this.applyFilters();
-                    });
-                }
-
-                // Filter options
-                document.querySelectorAll('.filter-option[data-type]').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-option[data-type]').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.filters.saleType = btn.dataset.type;
-                    });
-                });
-
-                document.querySelectorAll('.filter-option[data-rooms]').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-option[data-rooms]').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.filters.rooms = btn.dataset.rooms;
-                    });
-                });
-
-                // Sort
-                const sortSelect = document.getElementById('sort-select');
-                if (sortSelect) {
-                    sortSelect.addEventListener('change', (e) => {
-                        this.sortBy = e.target.value;
-                        this.sortProperties();
-                        this.renderProperties();
-                    });
-                }
-
-                // Modal close
-                const modal = document.getElementById('property-modal');
-                const modalClose = document.getElementById('modal-close');
-                if (modal) {
-                    modal.addEventListener('click', (e) => {
-                        if (e.target === modal) {
-                            this.closeModal();
-                        }
-                    });
-                }
-                if (modalClose) {
-                    modalClose.addEventListener('click', () => {
-                        this.closeModal();
-                    });
-                }
-            }
-
-            applyFilters() {
-                this.filteredProperties = this.properties.filter(property => {
-                    if (this.filters.search) {
-                        const searchLower = this.filters.search.toLowerCase();
-                        const matchesSearch = property.title.toLowerCase().includes(searchLower) ||
-                            property.address.toLowerCase().includes(searchLower) ||
-                            property.district.toLowerCase().includes(searchLower);
-                        if (!matchesSearch) return false;
-                    }
-                    if (this.filters.saleType !== 'all' && property.saleType !== this.filters.saleType) {
-                        return false;
-                    }
-                    if (this.filters.rooms !== 'all') {
-                        const roomCount = parseInt(this.filters.rooms);
-                        if (property.rooms !== roomCount) {
-                            return false;
-                        }
-                    }
-                    return true;
-                });
-
-                this.sortProperties();
-                this.renderProperties();
-                this.updateResultCount();
-            }
-
-            sortProperties() {
-                switch(this.sortBy) {
-                    case 'recent':
-                        this.filteredProperties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                        break;
-                    case 'price-low':
-                        this.filteredProperties.sort((a, b) => {
-                            const priceA = a.saleType === '월세' ? a.monthlyRent : a.price;
-                            const priceB = b.saleType === '월세' ? b.monthlyRent : b.price;
-                            return priceA - priceB;
-                        });
-                        break;
-                    case 'price-high':
-                        this.filteredProperties.sort((a, b) => {
-                            const priceA = a.saleType === '월세' ? a.monthlyRent : a.price;
-                            const priceB = b.saleType === '월세' ? b.monthlyRent : b.price;
-                            return priceB - priceA;
-                        });
-                        break;
-                    case 'area-large':
-                        this.filteredProperties.sort((a, b) => b.area - a.area);
-                        break;
-                }
-            }
-
-            renderProperties() {
-                const grid = document.getElementById('property-list');
-                if (!grid) return;
-
-                if (this.filteredProperties.length === 0) {
-                    grid.innerHTML = '<div class="empty-message"><h3>검색 결과가 없습니다</h3><p>다른 조건으로 검색해보세요</p></div>';
-                    return;
-                }
-
-                grid.innerHTML = this.filteredProperties.map(property => this.createPropertyCard(property)).join('');
-
-                // Add click events
-                grid.querySelectorAll('.property-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        if (!e.target.closest('.favorite-btn')) {
-                            const propertyId = parseInt(card.dataset.id);
-                            this.showPropertyModal(propertyId);
-                        }
-                    });
-                });
-
-                grid.querySelectorAll('.favorite-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const propertyId = parseInt(btn.dataset.id);
-                        this.toggleFavorite(propertyId);
-                    });
-                });
-            }
-
-            createPropertyCard(property) {
-                const isFavorite = this.favorites.includes(property.id);
-                const priceDisplay = property.saleType === '월세' ?
-                    `${property.price}/${property.monthlyRent}` : property.price.toLocaleString();
-                const priceUnit = property.saleType === '월세' ? '만원' : '만원';
-
-                return `
-                    <div class="property-card ${property.premium ? 'premium' : ''}" data-id="${property.id}">
-                        <img src="${property.image}" alt="${property.title}" class="property-image">
-                        ${property.premium ? '<div class="premium-badge">⭐ 프리미엄</div>' : ''}
-                        <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" data-id="${property.id}">
-                            ${isFavorite ? '❤️' : '🤍'}
-                        </button>
-                        <div class="property-info">
-                            <span class="property-type">${property.type}</span>
-                            <h3 class="property-title">${property.title}</h3>
-                            <p class="property-location">📍 ${property.address}</p>
-                            <div class="property-price">${priceDisplay} <small>${priceUnit}</small></div>
-                            <div class="property-features">
-                                <span class="feature">📐 ${property.area}㎡</span>
-                                <span class="feature">🛏️ ${property.rooms}개</span>
-                                <span class="feature">🏢 ${property.floor}층</span>
-                            </div>
+        // Render Properties
+        function renderProperties() {
+            const grid = document.getElementById('property-grid');
+            grid.innerHTML = properties.map(property => `
+                <div class="property-card" onclick="openModal(${property.id})">
+                    <img src="${property.images[0]}" alt="${property.title}" class="property-image">
+                    ${property.verified ? '<div class="verified-badge">✓ 검증완료</div>' : ''}
+                    <button class="favorite-btn" onclick="event.stopPropagation(); toggleFavorite(${property.id})">
+                        ${favorites.includes(property.id) ? '❤️' : '🤍'}
+                    </button>
+                    <div class="property-info">
+                        <div class="property-title">${property.title}</div>
+                        <div class="property-location">📍 ${property.location}</div>
+                        <div class="property-price">${property.type === '월세' ? property.monthlyRent : property.price}</div>
+                        <div class="property-features">
+                            <span>📐 ${property.area}㎡</span>
+                            <span>🛏️ ${property.rooms}개</span>
+                            <span>🏢 ${property.floor}/${property.totalFloors}층</span>
                         </div>
                     </div>
-                `;
+                </div>
+            `).join('');
+
+            document.getElementById('total-count').textContent = properties.length;
+        }
+
+        // Open Modal
+        function openModal(id) {
+            const property = properties.find(p => p.id === id);
+            if (!property) return;
+
+            currentProperty = property;
+            currentImageIndex = 0;
+
+            // Add to recently viewed
+            if (!recentlyViewed.includes(id)) {
+                recentlyViewed.unshift(id);
+                if (recentlyViewed.length > 10) recentlyViewed.pop();
+                localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
             }
 
-            showPropertyModal(propertyId) {
-                const property = this.properties.find(p => p.id === propertyId);
-                if (!property) return;
+            const modal = document.getElementById('property-modal');
+            const modalBody = document.getElementById('modal-body');
 
-                const modal = document.getElementById('property-modal');
-                const modalBody = document.getElementById('modal-body');
-                const isFavorite = this.favorites.includes(property.id);
-                const priceDisplay = property.saleType === '월세' ?
-                    `${property.price}/${property.monthlyRent}만원` : `${property.price.toLocaleString()}만원`;
-
-                modalBody.innerHTML = `
-                    <img src="${property.image}" alt="${property.title}" class="modal-image">
+            modalBody.innerHTML = `
+                <div class="modal-gallery">
+                    <img src="${property.images[currentImageIndex]}" alt="${property.title}" class="modal-image" id="modal-image">
+                    ${property.images.length > 1 ? `
+                        <button class="gallery-nav gallery-prev" onclick="changeImage(-1)">‹</button>
+                        <button class="gallery-nav gallery-next" onclick="changeImage(1)">›</button>
+                    ` : ''}
+                </div>
+                <div class="modal-body">
                     <div class="modal-header">
-                        ${property.premium ? '<div class="premium-badge">⭐ 프리미엄 매물</div>' : ''}
-                        <h2>${property.title}</h2>
-                        <p class="modal-location">📍 ${property.address}</p>
-                        <div class="modal-price">${priceDisplay}</div>
+                        ${property.verified ? '<div class="verified-badge">✓ 검증완료</div>' : ''}
+                        <h2 class="modal-title">${property.title}</h2>
+                        <div class="property-location">📍 ${property.location}</div>
+                        <div class="modal-price">${property.type === '월세' ? property.monthlyRent : property.price}</div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button class="btn btn-primary" style="flex: 1;" onclick="alert('전화 연결: ${property.agent.phone}')">📞 전화하기</button>
+                            <button class="btn btn-secondary" style="flex: 1;" onclick="toggleFavorite(${property.id}); openModal(${property.id});">
+                                ${favorites.includes(property.id) ? '❤️ 찜 해제' : '🤍 찜하기'}
+                            </button>
+                            <button class="btn btn-secondary" onclick="addToComparison(${property.id})">📊 비교하기</button>
+                        </div>
                     </div>
-                    <div class="modal-details">
-                        <div class="detail-item"><h4>전용면적</h4><p>${property.area}㎡</p></div>
-                        <div class="detail-item"><h4>방/욕실</h4><p>${property.rooms}개 / ${property.bathrooms}개</p></div>
-                        <div class="detail-item"><h4>층수</h4><p>${property.floor}층 / ${property.totalFloors}층</p></div>
-                        <div class="detail-item"><h4>건축년도</h4><p>${property.buildYear}년</p></div>
+
+                    <div class="modal-tabs">
+                        <button class="tab-btn active" onclick="switchTab(0)">상세정보</button>
+                        <button class="tab-btn" onclick="switchTab(1)">등기부등본</button>
+                        <button class="tab-btn" onclick="switchTab(2)">가격추이</button>
+                        <button class="tab-btn" onclick="switchTab(3)">대출계산기</button>
+                        <button class="tab-btn" onclick="switchTab(4)">지도</button>
                     </div>
-                    <div class="modal-section">
+
+                    <div class="tab-content active" id="tab-0">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">전용면적</div>
+                                <div class="detail-value">${property.area}㎡</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">방/욕실</div>
+                                <div class="detail-value">${property.rooms}/${property.bathrooms}개</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">층수</div>
+                                <div class="detail-value">${property.floor}/${property.totalFloors}층</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">건축년도</div>
+                                <div class="detail-value">${property.buildYear}년</div>
+                            </div>
+                        </div>
+
                         <h3>매물 설명</h3>
                         <p>${property.description}</p>
-                    </div>
-                    <div class="modal-section">
-                        <h3>옵션</h3>
-                        <div class="options-list">
-                            ${property.options.map(option => `<div class="option-item"><span>✓</span><span>${option}</span></div>`).join('')}
+
+                        <h3 style="margin-top: 2rem;">옵션</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
+                            ${property.options.map(opt => `<span style="padding: 0.5rem 1rem; background: var(--bg); border-radius: 20px;">✓ ${opt}</span>`).join('')}
+                        </div>
+
+                        <h3 style="margin-top: 2rem;">담당 중개사</h3>
+                        <div style="background: var(--bg); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                            <h4>${property.agent.name} (${property.agent.company})</h4>
+                            <p>📞 ${property.agent.phone}</p>
                         </div>
                     </div>
-                    <div class="modal-section">
-                        <h3>담당 중개사</h3>
-                        <div class="agent-info">
-                            <div class="agent-avatar">${property.agent.name.charAt(0)}</div>
-                            <div class="agent-details">
-                                <h4>${property.agent.name}</h4>
-                                <p>${property.agent.company}</p>
-                                <p>📞 ${property.agent.phone}</p>
-                            </div>
+
+                    <div class="tab-content" id="tab-1">
+                        ${renderDocument(property)}
+                    </div>
+
+                    <div class="tab-content" id="tab-2">
+                        <h3>최근 6개월 가격 추이</h3>
+                        <div class="chart-container">
+                            <canvas id="price-chart"></canvas>
                         </div>
                     </div>
-                    <div class="modal-actions">
-                        <button class="btn-contact" onclick="alert('전화 연결 기능은 데모 버전에서 지원되지 않습니다.')">📞 전화하기</button>
-                        <button class="btn-tour ${isFavorite ? 'favorited' : ''}" onclick="app.toggleFavorite(${property.id}); app.showPropertyModal(${property.id});">
-                            ${isFavorite ? '❤️ 찜 해제' : '🤍 찜하기'}
-                        </button>
+
+                    <div class="tab-content" id="tab-3">
+                        ${renderCalculator(property)}
                     </div>
-                `;
 
-                modal.classList.add('active');
-            }
+                    <div class="tab-content" id="tab-4">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            `;
 
-            closeModal() {
-                const modal = document.getElementById('property-modal');
-                modal.classList.remove('active');
-            }
+            modal.classList.add('active');
+        }
 
-            toggleFavorite(propertyId) {
-                const index = this.favorites.indexOf(propertyId);
-                if (index > -1) {
-                    this.favorites.splice(index, 1);
-                } else {
-                    this.favorites.push(propertyId);
-                }
-                this.saveFavorites();
-                this.renderProperties();
-                this.updateFavoritesCount();
-            }
+        // Render Document
+        function renderDocument(property) {
+            return `
+                <div class="document">
+                    <div class="document-header">
+                        <h2 class="document-title">등 기 부 등 본</h2>
+                        <p style="margin-top: 0.5rem; color: #666;">발급일: 2025년 1월 2일</p>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">소재지</div>
+                        <div>${property.location}</div>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">전유부분 면적</div>
+                        <div>${property.area}㎡</div>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">건물구조</div>
+                        <div>철근콘크리트조</div>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">준공년도</div>
+                        <div>${property.buildYear}년</div>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">소유자</div>
+                        <div>개인정보 보호를 위해 비공개</div>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">권리관계</div>
+                        <div style="color: var(--secondary); font-weight: 700;">정상 (압류/가압류 없음)</div>
+                    </div>
+                    <div class="document-row">
+                        <div class="document-label">근저당권</div>
+                        <div>없음</div>
+                    </div>
+                    <p style="text-align: center; color: #666; margin-top: 2rem; font-size: 0.9rem;">
+                        ※ 본 등기부등본은 데모용 샘플입니다. 실제 거래시 반드시 법원 또는 대법원 인터넷등기소에서 발급받은 등기부등본을 확인하시기 바랍니다.
+                    </p>
+                </div>
+            `;
+        }
 
-            updateFavoritesCount() {
-                const countEl = document.getElementById('favorites-count');
-                if (countEl) {
-                    countEl.textContent = this.favorites.length;
-                }
-            }
+        // Render Calculator
+        function renderCalculator(property) {
+            const basePrice = parseInt(property.price.replace(/[^0-9]/g, '')) || 0;
+            return `
+                <div class="calculator">
+                    <h3>주택담보대출 계산기</h3>
+                    <div class="calc-input-group">
+                        <label class="calc-label">매매가 (만원)</label>
+                        <input type="number" class="calc-input" id="calc-price" value="${basePrice * 10000}" onchange="calculateLoan()">
+                    </div>
+                    <div class="calc-input-group">
+                        <label class="calc-label">대출비율 (%)</label>
+                        <input type="number" class="calc-input" id="calc-ltv" value="70" max="80" onchange="calculateLoan()">
+                    </div>
+                    <div class="calc-input-group">
+                        <label class="calc-label">금리 (%)</label>
+                        <input type="number" class="calc-input" id="calc-rate" value="4.5" step="0.1" onchange="calculateLoan()">
+                    </div>
+                    <div class="calc-input-group">
+                        <label class="calc-label">대출기간 (년)</label>
+                        <input type="number" class="calc-input" id="calc-years" value="30" onchange="calculateLoan()">
+                    </div>
+                    <div class="calc-result" id="calc-result">
+                        <div class="calc-result-value" id="calc-monthly">계산하기 버튼을 눌러주세요</div>
+                        <div>월 상환금액 (원리금균등상환)</div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="calculateLoan()">계산하기</button>
+                </div>
+            `;
+        }
 
-            loadFavorites() {
-                const saved = localStorage.getItem('favorites');
-                return saved ? JSON.parse(saved) : [];
-            }
+        // Calculate Loan
+        function calculateLoan() {
+            const price = parseInt(document.getElementById('calc-price').value);
+            const ltv = parseInt(document.getElementById('calc-ltv').value);
+            const rate = parseFloat(document.getElementById('calc-rate').value);
+            const years = parseInt(document.getElementById('calc-years').value);
 
-            saveFavorites() {
-                localStorage.setItem('favorites', JSON.stringify(this.favorites));
-            }
+            const loanAmount = price * (ltv / 100);
+            const monthlyRate = rate / 100 / 12;
+            const months = years * 12;
 
-            updateResultCount() {
-                const resultCount = document.getElementById('results-count');
-                if (resultCount) {
-                    resultCount.textContent = this.filteredProperties.length;
-                }
-            }
+            const monthly = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
 
-            initializeCharts() {
-                if (typeof Chart === 'undefined') return;
-                this.initDistrictPriceChart();
-                this.initWeeklyTrendChart();
-                this.initPropertyTypeChart();
-            }
+            document.getElementById('calc-monthly').textContent = `${Math.round(monthly).toLocaleString()}원`;
+        }
 
-            initDistrictPriceChart() {
-                const ctx = document.getElementById('districtPriceChart');
-                if (!ctx) return;
+        // Switch Tab
+        function switchTab(index) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
 
-                const districtData = {};
-                this.properties.forEach(prop => {
-                    if (!districtData[prop.district]) {
-                        districtData[prop.district] = { total: 0, count: 0 };
-                    }
-                    const price = prop.saleType === '월세' ? prop.monthlyRent : prop.price / 10000;
-                    districtData[prop.district].total += price;
-                    districtData[prop.district].count++;
-                });
-
-                const districts = Object.keys(districtData).slice(0, 5);
-                const avgPrices = districts.map(d => Math.round(districtData[d].total / districtData[d].count));
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: districts,
-                        datasets: [{
-                            label: '평균 가격 (억원)',
-                            data: avgPrices,
-                            backgroundColor: 'rgba(255, 107, 53, 0.7)',
-                            borderColor: 'rgba(255, 107, 53, 1)',
-                            borderWidth: 2,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
-
-            initWeeklyTrendChart() {
-                const ctx = document.getElementById('weeklyTrendChart');
-                if (!ctx) return;
-
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['7일 전', '6일 전', '5일 전', '4일 전', '3일 전', '2일 전', '어제'],
-                        datasets: [{
-                            label: '거래 건수',
-                            data: [45, 52, 48, 61, 55, 67, 73],
-                            borderColor: 'rgba(9, 132, 227, 1)',
-                            backgroundColor: 'rgba(9, 132, 227, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
-
-            initPropertyTypeChart() {
-                const ctx = document.getElementById('propertyTypeChart');
-                if (!ctx) return;
-
-                const typeData = {};
-                this.properties.forEach(prop => {
-                    typeData[prop.type] = (typeData[prop.type] || 0) + 1;
-                });
-
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(typeData),
-                        datasets: [{
-                            data: Object.values(typeData),
-                            backgroundColor: [
-                                'rgba(255, 107, 53, 0.8)',
-                                'rgba(9, 132, 227, 0.8)',
-                                'rgba(0, 184, 148, 0.8)',
-                                'rgba(253, 203, 110, 0.8)'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { position: 'bottom' } }
-                    }
-                });
-            }
-
-            updateLiveStats() {
-                const totalPropertiesEl = document.getElementById('total-properties');
-                const hotPropertiesEl = document.getElementById('hot-properties');
-
-                if (totalPropertiesEl) {
-                    totalPropertiesEl.textContent = this.properties.length;
-                }
-                if (hotPropertiesEl) {
-                    const hotCount = this.properties.filter(p => p.views > 2000).length;
-                    hotPropertiesEl.textContent = hotCount;
-                }
+            if (index === 2) {
+                setTimeout(() => renderPriceChart(), 100);
+            } else if (index === 4) {
+                setTimeout(() => initMap(), 100);
             }
         }
 
-        // Initialize app
-        let app;
-        document.addEventListener('DOMContentLoaded', () => {
-            app = new RealEstateApp();
-        });
+        // Change Image
+        function changeImage(direction) {
+            if (!currentProperty) return;
+            currentImageIndex = (currentImageIndex + direction + currentProperty.images.length) % currentProperty.images.length;
+            document.getElementById('modal-image').src = currentProperty.images[currentImageIndex];
+        }
+
+        // Render Price Chart
+        function renderPriceChart() {
+            const ctx = document.getElementById('price-chart');
+            if (!ctx || !currentProperty) return;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['6개월 전', '5개월 전', '4개월 전', '3개월 전', '2개월 전', '현재'],
+                    datasets: [{
+                        label: '가격 (만원)',
+                        data: currentProperty.priceHistory,
+                        borderColor: '#0066FF',
+                        backgroundColor: 'rgba(0, 102, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Initialize Map
+        function initMap() {
+            if (!currentProperty) return;
+
+            const mapEl = document.getElementById('map');
+            if (!mapEl || mapEl._leaflet_id) return;
+
+            const map = L.map('map').setView([currentProperty.lat, currentProperty.lng], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([currentProperty.lat, currentProperty.lng]).addTo(map)
+                .bindPopup(`<b>${currentProperty.title}</b><br>${currentProperty.location}`)
+                .openPopup();
+        }
+
+        // Toggle Favorite
+        function toggleFavorite(id) {
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            renderProperties();
+            updateCounts();
+        }
+
+        // Add to Comparison
+        function addToComparison(id) {
+            if (comparisonList.includes(id)) {
+                alert('이미 비교 목록에 추가되었습니다.');
+                return;
+            }
+            if (comparisonList.length >= 3) {
+                alert('최대 3개까지 비교 가능합니다.');
+                return;
+            }
+            comparisonList.push(id);
+            localStorage.setItem('comparisonList', JSON.stringify(comparisonList));
+            updateComparison();
+            updateCounts();
+        }
+
+        // Update Comparison
+        function updateComparison() {
+            const bar = document.getElementById('comparison-bar');
+            const items = document.getElementById('comparison-items');
+
+            if (comparisonList.length > 0) {
+                bar.classList.add('active');
+                items.innerHTML = comparisonList.map(id => {
+                    const prop = properties.find(p => p.id === id);
+                    return `
+                        <div class="comparison-item">
+                            ${prop.title.substring(0, 20)}...
+                            <button class="remove-comparison" onclick="removeFromComparison(${id})">✕</button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                bar.classList.remove('active');
+            }
+        }
+
+        // Remove from Comparison
+        function removeFromComparison(id) {
+            comparisonList = comparisonList.filter(i => i !== id);
+            localStorage.setItem('comparisonList', JSON.stringify(comparisonList));
+            updateComparison();
+            updateCounts();
+        }
+
+        // Update Counts
+        function updateCounts() {
+            document.getElementById('favorites-count').textContent = favorites.length;
+            document.getElementById('comparison-count').textContent = comparisonList.length;
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            document.getElementById('modal-close').addEventListener('click', () => {
+                document.getElementById('property-modal').classList.remove('active');
+            });
+
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = properties.filter(p =>
+                    p.title.toLowerCase().includes(query) ||
+                    p.location.toLowerCase().includes(query)
+                );
+                renderFilteredProperties(filtered);
+            });
+
+            document.getElementById('compare-btn').addEventListener('click', () => {
+                if (comparisonList.length < 2) {
+                    alert('비교할 매물을 2개 이상 선택해주세요.');
+                    return;
+                }
+                alert('비교 기능은 데모 버전에서 지원되지 않습니다.');
+            });
+
+            updateComparison();
+        }
+
+        // Render Filtered Properties
+        function renderFilteredProperties(filtered) {
+            const grid = document.getElementById('property-grid');
+            grid.innerHTML = filtered.map(property => `
+                <div class="property-card" onclick="openModal(${property.id})">
+                    <img src="${property.images[0]}" alt="${property.title}" class="property-image">
+                    ${property.verified ? '<div class="verified-badge">✓ 검증완료</div>' : ''}
+                    <button class="favorite-btn" onclick="event.stopPropagation(); toggleFavorite(${property.id})">
+                        ${favorites.includes(property.id) ? '❤️' : '🤍'}
+                    </button>
+                    <div class="property-info">
+                        <div class="property-title">${property.title}</div>
+                        <div class="property-location">📍 ${property.location}</div>
+                        <div class="property-price">${property.type === '월세' ? property.monthlyRent : property.price}</div>
+                        <div class="property-features">
+                            <span>📐 ${property.area}㎡</span>
+                            <span>🛏️ ${property.rooms}개</span>
+                            <span>🏢 ${property.floor}/${property.totalFloors}층</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize App
+        init();
     </script>
 </body>
 </html>
