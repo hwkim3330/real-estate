@@ -954,10 +954,16 @@
 
             const ctx = document.getElementById('priceChart').getContext('2d');
 
+            // Calculate fixed Y-axis range (±30% from basePrice)
+            const minPrice = Math.floor(currentProperty.basePrice * 0.8);
+            const maxPrice = Math.ceil(currentProperty.basePrice * 1.3);
+
             if (priceChart) {
                 // Smooth update without flickering
                 priceChart.data.labels = currentProperty.priceHistory.map((_, i) => `${i + 1}`);
                 priceChart.data.datasets[0].data = currentProperty.priceHistory;
+                priceChart.options.scales.y.min = minPrice;
+                priceChart.options.scales.y.max = maxPrice;
                 priceChart.update('none'); // 'none' mode = no animation
             } else {
                 priceChart = new Chart(ctx, {
@@ -1001,10 +1007,14 @@
                         },
                         scales: {
                             y: {
-                                beginAtZero: false,
+                                min: minPrice,
+                                max: maxPrice,
                                 ticks: {
                                     color: 'rgba(255, 255, 255, 0.6)',
-                                    font: { size: 11 }
+                                    font: { size: 11 },
+                                    callback: function(value) {
+                                        return value.toLocaleString();
+                                    }
                                 },
                                 grid: {
                                     color: 'rgba(255, 255, 255, 0.05)'
